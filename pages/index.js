@@ -78,7 +78,7 @@ export default function Home() {
                 <a href="/buh_zaruud">Бүх зарууд</a>
               </li>
               <li>
-                <a href="/sell ">Зар нэмэх</a>
+                <a href="/sell">Зар нэмэх</a>
               </li>
               <li>
                 <a href="/login" className="nevtreh-btn">
