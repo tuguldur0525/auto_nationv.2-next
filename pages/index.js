@@ -78,10 +78,10 @@ export default function Home() {
                 <a href="/buh_zaruud">Бүх зарууд</a>
               </li>
               <li>
-                <a href="/zar_nemeh">Зар нэмэх</a>
+                <a href="/sell ">Зар нэмэх</a>
               </li>
               <li>
-                <a href="/nevtreh" className="nevtreh-btn">
+                <a href="/login" className="nevtreh-btn">
                   Нэвтрэх
                 </a>
               </li>
