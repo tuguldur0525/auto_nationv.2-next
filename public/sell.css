@@ -14,6 +14,7 @@
     font-style: normal;
     font-variation-settings: "wdth" 100;
 }
+/*ynzalsa
 
 
 /* === Sell Container === */
@@ -168,6 +169,136 @@ textarea:focus {
     width: 100%;
 }
 
+/* Additional styles for sell.css */
+.drop-zone.dragover {
+    border-color: var(--blue);
+    background-color: rgba(83, 145, 245, 0.1);
+}
+
+.preview-image-container {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+.remove-image-btn:hover {
+    background: var(--red);
+}
+
+.spec-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.add-spec-btn {
+    background: none;
+    border: 1px dashed var(--gray);
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--blue);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-spec-btn:hover {
+    border-color: var(--blue);
+    background: rgba(83, 145, 245, 0.05);
+}
+.header {
+    min-height: 100vh;
+    width: 100%;
+    background-image: linear-gradient(rgba(4, 9, 30, 0.7), rgba(4, 9, 30, 0.7)), url(images/2SUV.avif);
+    background-position: center;
+    background-size: cover;
+    position: relative;
+}
+
+.guide-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    padding: 0 20px;
+    z-index: 1;
+}
+
+.guide-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    color: var(--white);
+}
+
+.guide-container h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.guide-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.step-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition);
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.step-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--blue);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.step-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.step-card p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
 
 /* === Responsive Design === */
 
@@ -181,5 +312,27 @@ textarea:focus {
     }
     .form-header h1 {
         font-size: 1.8rem;
+    }
+    .guide-container h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+    .guide-steps {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 0 auto 40px;
+    }
+    .step-card {
+        padding: 25px;
+    }
+}
+@media (max-width: 480px) {
+    .guide-container h2 {
+        font-size: 1.8rem;
+    }
+    .step-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
     }
 }

@@ -81,9 +81,7 @@ export default function Home() {
                 <a href="/sell">Зар нэмэх</a>
               </li>
               <li>
-                <a href="/login" className="nevtreh-btn">
-                  Нэвтрэх
-                </a>
+                <a href="/login" className="nevtreh-btn">Нэвтрэх</a>
               </li>
             </ul>
           </div>
