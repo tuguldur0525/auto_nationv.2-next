@@ -50,7 +50,7 @@ export default function SellPage() {
         });
         
         Promise.all(readers).then(results => {
-            setImages(prev => [...prev, ...results].slice(0, 10)); // Limit to 10 images
+            setImages(prev => [...prev, ...results].slice(0, 10));
         });
     };
 
