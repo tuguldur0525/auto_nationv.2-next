@@ -151,7 +151,7 @@ export default function SignPage() {
                         <i className="fa fa-times" onClick={toggleMenu}></i>
                         <ul>
                             <li><Link href="/">Нүүр</Link></li>
-                            <li><Link href="/listings">Бүх зарууд</Link></li>
+                            <li><Link href="/buh_zaruud">Бүх зарууд</Link></li>
                             <li><Link href="/sell">Зар нэмэх</Link></li>
                             <li><Link href="/sign" className="nevtreh-btn">Нэвтрэх</Link></li>
                         </ul>
