@@ -124,7 +124,7 @@ export default function Home() {
       </section>
 
       {<SearchBar /> }
-      {<Listings />}  {<Listings />}  {<Listings />}
+      {<Listings />} 
       {<Footer/>}
 
 

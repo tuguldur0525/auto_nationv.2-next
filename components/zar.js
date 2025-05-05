@@ -6,7 +6,6 @@ export default function Listings() {
 
         {/* ---------------- Шинэ зарууд ---------------- */}
         <div className="category-section">
-          <h2 className="section-title">Шинэ зарууд</h2>
           <div className="listings-grid">
 
             {/* Зар #1 */}
@@ -28,43 +27,8 @@ export default function Listings() {
               </div>
             </div>
 
-            {/* Зар #2 */}
-            <div className="listing-card">
-              <div className="listing-badge new">Шинэ</div>
-              <img src="/images/cybertruck.avif" alt="Tesla CyberTruck 2024" />
-              <div className="listing-info">
-                <h3>Tesla CyberTruck 2024</h3>
-                <div className="listing-details">
-                  <span><i className="fa fa-tachometer"></i> 0 км</span>
-                  <span><i className="fa fa-bolt"></i> Цахилгаан</span>
-                  <span><i className="fa fa-car"></i> SUV</span>
-                </div>
-                <div className="listing-price">320,000,000₮</div>
-                <div className="listing-location">
-                  <i className="fa fa-map-marker"></i> Улаанбаатар
-                </div>
-                <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
-              </div>
-            </div>
 
-            {/* Зар #3 */}
-            <div className="listing-card">
-              <div className="listing-badge new">Шинэ</div>
-              <img src="/images/patrolY62.png" alt="Nissan Patrol Y62 2024" />
-              <div className="listing-info">
-                <h3>Nissan Patrol Y62 2024</h3>
-                <div className="listing-details">
-                  <span><i className="fa fa-tachometer"></i> 0 км</span>
-                  <span><i className="fa fa-bolt"></i> Хибрид</span>
-                  <span><i className="fa fa-car"></i> SUV</span>
-                </div>
-                <div className="listing-price">400,000,000₮</div>
-                <div className="listing-location">
-                  <i className="fa fa-map-marker"></i> Улаанбаатар
-                </div>
-                <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
-              </div>
-            </div>
+     
 
             {/* Илүү заруудыг энд нэмэж болно */}
           </div>

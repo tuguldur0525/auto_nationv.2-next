@@ -1,41 +1,71 @@
-// components/Listings.js
+"use client";
+import { useEffect, useState } from "react";
+
 export default function Listings() {
+  const [listings, setListings] = useState([]);
+  const [electricCars, setElectricCars] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/listings') // ✅ зөв зам
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.newCars); // Шинэ автомашиныг тохируулав
+        setElectricCars(data.electricCars); // Цахилгаан машиныг тохируулав
+      })
+      .catch(err => console.error("Алдаа:", err));
+  }, []);
   return (
     <section className="all-listings">
       <div className="container">
-
-        {/* ---------------- Шинэ зарууд ---------------- */}
         <div className="category-section">
           <h2 className="section-title">Шинэ зарууд</h2>
-          <div className="listings-grid">
-
-            {/* Зар #1 */}
-            <div className="listing-card">
-              <div className="listing-badge new">Шинэ</div>
-              <img src="/images/prius60white.avif" alt="Toyota Prius 2020" />
-              <div className="listing-info">
-                <h3>Toyota Prius 2020</h3>
-                <div className="listing-details">
-                  <span><i className="fa fa-tachometer"></i> 0 км</span>
-                  <span><i className="fa fa-leaf"></i> Хибрид</span>
-                  <span><i className="fa fa-car"></i> Седан</span>
+          <div className="listings-scroll-wrapper">
+            {listings.map((item, index) => (
+              <div className="listing-card" key={index}>
+                <div className="listing-badge new">Шинэ</div>
+                <img src={item.image} alt={item.title} />
+                <div className="listing-info">
+                  <h3>{item.title}</h3>
+                  <div className="listing-details">
+                    <span><i className="fa fa-tachometer"></i> {item.km} км</span>
+                    <span><i className="fa fa-leaf"></i> {item.fuel}</span>
+                    <span><i className="fa fa-car"></i> {item.type}</span>
+                  </div>
+                  <div className="listing-price">{item.price}</div>
+                  <div className="listing-location">
+                    <i className="fa fa-map-marker"></i> {item.location}
+                  </div>
+                  <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
                 </div>
-                <div className="listing-price">125,000,000₮</div>
-                <div className="listing-location">
-                  <i className="fa fa-map-marker"></i> Улаанбаатар
-                </div>
-                <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
               </div>
-            </div>
-
-
-     
-
-            {/* Илүү заруудыг энд нэмэж болно */}
+            ))}
           </div>
         </div>
-
-        {/* ➕ Хуучин автомашин, SUV, Седан гэх мэт хэсгүүдийг хүсвэл үргэлжлүүлэн бичиж болно */}
+        {/* Цахилгаан машин */}
+        <div className="category-section">
+          <h2 className="section-title">Цахилгаан</h2>
+          <div className="listings-scroll-wrapper">
+            {electricCars.map((item, index) => (
+              <div className="listing-card" key={index}>
+                <div className="listing-badge electric">Цахилгаан</div>
+                <img src={item.image} alt={item.title} />
+                <div className="listing-info">
+                  <h3>{item.title}</h3>
+                  <div className="listing-details">
+                    <span><i className="fa fa-tachometer"></i> {item.km} км</span>
+                    <span><i className="fa fa-leaf"></i> {item.fuel}</span>
+                    <span><i className="fa fa-car"></i> {item.type}</span>
+                  </div>
+                  <div className="listing-price">{item.price}</div>
+                  <div className="listing-location">
+                    <i className="fa fa-map-marker"></i> {item.location}
+                  </div>
+                  <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
