@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { useState, useRef } from 'react';
 import '../public/style.css';
 import '../public/sell.css';
@@ -93,6 +94,13 @@ export default function SellPage() {
 
     return (
         <>
+        <Head>
+            <title>AutoNation | Зар нэмэх</title>
+            <link
+          rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        />
+        </Head>
             <div className="header">
                 <div className="guide-overlay">
                     <div className="guide-container">
@@ -100,7 +108,7 @@ export default function SellPage() {
                         <div className="guide-steps">
                             <div className="step-card">
                                 <div className="step-icon">
-                                    <i className="fas fa-camera"></i>
+                                    <i className="fa fa-camera"></i>
                                 </div>
                                 <h3>1. Зураг оруулна</h3>
                                 <p>Машиныхаа тод зурагуудыг оруулна</p>
@@ -108,7 +116,7 @@ export default function SellPage() {
 
                             <div className="step-card">
                                 <div className="step-icon">
-                                    <i className="fas fa-info-circle"></i>
+                                    <i className="fa fa-info-circle"></i>
                                 </div>
                                 <h3>2. Мэдээлэл бөглөнө</h3>
                                 <p>Бүх шаардлагатай мэдээллийг бөглөнө</p>
@@ -116,7 +124,7 @@ export default function SellPage() {
 
                             <div className="step-card">
                                 <div className="step-icon">
-                                    <i className="fas fa-check"></i>
+                                    <i className="fa fa-check"></i>
                                 </div>
                                 <h3>3. Зар нийтэлнэ</h3>
                                 <p>Зарыг шалгаад нийтлэгдэнэ</p>

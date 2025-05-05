@@ -4,6 +4,9 @@ import Head from 'next/head';
 import { useEffect } from 'react';
 import Footer from '../components/footer';
 import Headers from '../components/header';
+import SearchBar from '../components/searchbar';
+import Listings from '../components/listings';
+import FilterBar from '../components/filterbar';
 export default function BuhZaruud() {
   useEffect(() => {
     const navLinks = document.getElementById("navLinks");
@@ -16,6 +19,7 @@ export default function BuhZaruud() {
       <Head>
         <title>AutoNation | Бүх зарууд</title>
         <link rel="stylesheet" href="/buh_zaruud.css" />
+      
         <link
           href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
           rel="stylesheet"
@@ -27,7 +31,8 @@ export default function BuhZaruud() {
       </Head>
 
       <Headers />    
-
+      <SearchBar />
+      <FilterBar />
 
       {/* Filter Section */}
       <section className="filter-section">
@@ -51,32 +56,8 @@ export default function BuhZaruud() {
         </div>
       </section>
 
-      {/* Listings section placeholder */}
-      <section className="all-listings">
-        <div className="container">
-          <h2 className="section-title">Шинэ зарууд</h2>
-          <div className="listings-grid">
-            <div className="listing-card">
-              <div className="listing-badge new">Шинэ</div>
-              <img src="/images/prius60white.avif" alt="Prius" />
-              <div className="listing-info">
-                <h3>Toyota Prius 2020</h3>
-                <div className="listing-details">
-                  <span><i className="fa fa-tachometer"></i> 0 км</span>
-                  <span><i className="fa fa-leaf"></i> Хибрид</span>
-                  <span><i className="fa fa-car"></i> Седан</span>
-                </div>
-                <div className="listing-price">125,000,000₮</div>
-                <div className="listing-location">
-                  <i className="fa fa-map-marker"></i> Улаанбаатар
-                </div>
-                <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
-              </div>
-            </div>
-            {/* Add more static or fetched listings here */}
-          </div>
-        </div>
-      </section>
+      <Listings />
+     
 
     
     <Footer />
