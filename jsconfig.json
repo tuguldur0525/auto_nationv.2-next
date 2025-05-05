@@ -1,7 +1,9 @@
+// This file is used to configure the JavaScript language service in Visual Studio Code.
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     }
   }
 }

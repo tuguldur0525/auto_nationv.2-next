@@ -150,10 +150,10 @@ export default function SignPage() {
                     <div className={`nav-links ${menuOpen ? 'show' : ''}`} id="navLinks">
                         <i className="fa fa-times" onClick={toggleMenu}></i>
                         <ul>
-                            <li><Link href="/">Нүүр</Link></li>
-                            <li><Link href="/buh_zaruud">Бүх зарууд</Link></li>
-                            <li><Link href="/sell">Зар нэмэх</Link></li>
-                            <li><Link href="/sign" className="nevtreh-btn">Нэвтрэх</Link></li>
+                            <li><a href="/">Нүүр</a></li>
+                            <li><a href="/buh_zaruud">Бүх зарууд</a></li>
+                            <li><a href="/sell">Зар нэмэх</a></li>
+                            <li><a href="/sign" className="nevtreh-btn">Нэвтрэх</a></li>
                         </ul>
                     </div>
                     <i className="fa fa-bars" onClick={toggleMenu}></i>

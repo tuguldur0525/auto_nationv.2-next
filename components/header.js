@@ -1,7 +1,4 @@
-// components/Header.js
-
-'use client'; // хэрэгтэй, учир нь onclick handler байгаа
-
+'use client'; 
 import { useEffect } from 'react';
 
 export default function Header() {

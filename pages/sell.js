@@ -101,7 +101,31 @@ export default function SellPage() {
           href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         />
         </Head>
+        
             <div className="header">
+                <nav>
+                <a href="/">
+                    <img src="/images/Logo_AN.png" alt="Logo" />
+                </a>
+                <div className="nav-links" id="navLinks">
+                    <i className="fa fa-times" onClick={() => hideMenu()}></i>
+                    <ul>
+                    <li>
+                        <a href="/">Нүүр</a>
+                    </li>
+                    <li>
+                        <a href="/buh_zaruud">Бүх зарууд</a>
+                    </li>
+                    <li>
+                        <a href="/sell">Зар нэмэх</a>
+                    </li>
+                    <li>
+                        <a href="/login" className="nevtreh-btn">Нэвтрэх</a>
+                    </li>
+                    </ul>
+                </div>
+                <i className="fa fa-bars" onClick={() => showMenu()}></i>
+                </nav>
                 <div className="guide-overlay">
                     <div className="guide-container">
                         <h2>Зар нэмэх 3 Алхам</h2>
@@ -151,7 +175,7 @@ export default function SellPage() {
                                     onDragLeave={handleDragLeave}
                                     onDrop={handleDrop}
                                 >
-                                    <i className="fas fa-cloud-upload-alt"></i>
+                                    <i className="fa fa-cloud-upload-alt"></i>
                                     <p>Зурагаа Энд Авчирч Тавь</p>
                                     <span>эсвэл</span>
                                     <button type="button" className="browse-btn">Файлаас Сонгох</button>
@@ -177,7 +201,7 @@ export default function SellPage() {
                                                 className="remove-image-btn"
                                                 onClick={() => removeImage(index)}
                                             >
-                                                <i className="fas fa-times"></i>
+                                                <i className="fa fa-times"></i>
                                             </button>
                                         </div>
                                     ))}
@@ -269,7 +293,7 @@ export default function SellPage() {
                                     className="add-spec-btn"
                                     onClick={addSpec}
                                 >
-                                    <i className="fas fa-plus"></i> Үзүүлэлт Нэмэх
+                                    <i className="fa fa-plus"></i> Үзүүлэлт Нэмэх
                                 </button>
                             </div>
                         </div>
@@ -313,7 +337,7 @@ export default function SellPage() {
 
                     <div className="form-actions">
                         <button type="submit" className="publish-btn">
-                            <i className="fas fa-rocket"></i> ЗАР НИЙТЛЭХ
+                            <i className="fa fa-rocket"></i> ЗАР НИЙТЛЭХ
                         </button>
                     </div>
                 </form>

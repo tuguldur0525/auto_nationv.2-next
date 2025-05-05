@@ -28,12 +28,106 @@ body {
     margin: 0 auto;
     padding: 0 15px;
 }
+/*
+.header {
+    min-height: 100vh;
+    width: 100%;
+    background-image: linear-gradient(rgba(4, 9, 30, 0.7), rgba(4, 9, 30, 0.7)), url(images/2SUV.avif);
+    background-position: center;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+}
 
+nav {
+    display: flex;
+    padding: 2% 6%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav img {
+    width: 180px;
+}
+
+.nav-links {
+    flex: 1;
+    text-align: right;
+}
+
+.nav-links ul li {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    list-style: none;
+    display: inline-block;
+    padding: 8px 12px;
+    position: relative;
+}
+
+.nav-links ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.nevtreh-btn {
+    padding: 6px 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #5391f5;
+}
+
+.nevtreh-btn:hover {
+    border: 1px solid #5391f5;
+    background: #5391f5;
+    transition: 1s;
+}
+
+.nav-links ul li::after {
+    content: '';
+    width: 0%;
+    height: 2px;
+    background: #5391f5;
+    display: block;
+    margin: auto;
+    transition: 0.5s;
+}
+
+.nav-links ul li:hover::after {
+    width: 100%;
+}
+
+.text-box {
+    width: 60%;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.text-box h1 {
+    font-size: 62px;
+}
+
+.text-box p {
+    font-size: 14px;
+    color: #fff;
+    margin: 10px 0 40px;
+}
+
+nav .fa {
+    display: none;
+}
+*/
 /* Header Styles */
 nav {
     background: linear-gradient(135deg, #2e283c, #211f2a, #252734, #09122c);
     display: flex;
-    padding: 10px 6%;
+    padding: 1% 6%;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 1px 4px rgba(0,0,0,0.3), 0 0 40px rgba(0,0,0,0.1) inset;
@@ -128,6 +222,7 @@ nav .fa{
     font-size: 1.1rem;
     margin-bottom: 25px;
 }
+    
 
 
 /*-------Search bar-----------*/
