@@ -7,6 +7,7 @@ import Headers from '../components/header';
 import SearchBar from '../components/searchbar';
 import Listings from '../components/listings';
 import FilterBar from '../components/filterbar';
+
 export default function BuhZaruud() {
   useEffect(() => {
     const navLinks = document.getElementById("navLinks");
@@ -35,6 +36,7 @@ export default function BuhZaruud() {
       <FilterBar />
 
       {/* Filter Section */}
+
       <section className="filter-section">
         <div className="container">
           <div className="filter-tabs">
@@ -55,11 +57,9 @@ export default function BuhZaruud() {
           </div>
         </div>
       </section>
-
       <Listings />
      
 
-    
     <Footer />
     </>
   );

@@ -6,6 +6,7 @@ import SearchBar from "../components/searchbar";
 import Footer from "../components/footer";
 import Listings from "../components/listings";
 import Header from "../components/header";
+import Zar from "../components/zar";
 
 
 export default function Home() {
@@ -124,7 +125,9 @@ export default function Home() {
       </section>
 
       {<SearchBar /> }
+
       {<Listings />} 
+
       {<Footer/>}
 
 

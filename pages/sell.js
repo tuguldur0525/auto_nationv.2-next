@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import '../public/style.css';
 import '../public/sell.css';
 import Footer from "../components/footer";
-import Header from '../components/header';
+import Headers from '../components/header';
 
 export default function SellPage() {
     const [specs, setSpecs] = useState([{ key: '', value: '' }]);
@@ -13,7 +13,7 @@ export default function SellPage() {
 
     const handleSpecChange = (index, field, value) => {
         const updatedSpecs = [...specs];
-        updatedSpecs[index][field] = value;
+        updatedSpecs[index][field] = value;       
         setSpecs(updatedSpecs);
     };
 
