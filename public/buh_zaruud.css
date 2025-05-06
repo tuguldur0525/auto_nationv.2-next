@@ -131,9 +131,6 @@ nav {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 1px 4px rgba(0,0,0,0.3), 0 0 40px rgba(0,0,0,0.1) inset;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-
 }
 nav img {
     width: 180px;

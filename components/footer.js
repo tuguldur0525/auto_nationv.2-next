@@ -12,7 +12,9 @@ export default function Footer() {
                         </div>
                     </div>
                     <div className="footer-col">
+                      <a href="/">
                         <img className="footer-logo" src="/images/Logo_AN.png" alt="autonation logo"/>
+                      </a>
                         <p>Монголын хамгийн том авто худалдааны сайт.</p>
                      </div>
                      <div className="footer-col">

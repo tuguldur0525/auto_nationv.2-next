@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import '../public/style.css';
 import '../public/login.css';
+import Footer from 'components/footer';
 
 export default function SignPage() {
     const [activeForm, setActiveForm] = useState('login');
@@ -136,7 +137,7 @@ export default function SignPage() {
     return (
         <>
             <Head>
-                <title>Нэвтрэх | AutoNation</title>
+                <title>AutoNation | Нэвтрэх</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
@@ -169,7 +170,7 @@ export default function SignPage() {
                             >
                                 <div className="form-header">
                                     <h2>Нэвтрэх</h2>
-                                    <p>Тавтай морилно уу</p>
+                                    <p>AutoNation-д тавтай морилно уу</p>
                                 </div>
                                 
                                 {errors.general && <div className="error-message">{errors.general}</div>}
@@ -216,7 +217,7 @@ export default function SignPage() {
                                 </button>
                                 
                                 <div className="form-footer">
-                                    Бүртгэлгүй юу? <a onClick={() => showForm('signup')}>Шинэ хэрэглэгч бол бүртгүүлэх</a>
+                                    Бүртгэлгүй юу? <a onClick={() => showForm('signup')}><u>Шинэ хэрэглэгч бол бүртгүүлэх</u></a>
                                 </div>
                             </form>
 
@@ -300,7 +301,7 @@ export default function SignPage() {
                                 </button>
                                 
                                 <div className="form-footer">
-                                    Бүртгэлтэй юу? <a onClick={() => showForm('login')}>Нэвтрэх</a>
+                                    Бүртгэлтэй юу? <a onClick={() => showForm('login')}><u>Нэвтрэх</u></a>
                                 </div>
                             </form>
                         </div>
@@ -308,44 +309,7 @@ export default function SignPage() {
                 </section>
             </section>
 
-            <footer className="footer">
-                <div className="container">
-                    <div className="footer-grid">
-                        <div className="footer-col">
-                            <h3>Манай апп-ыг татах</h3>
-                            <p>Google play болон App store-с татах боломжтой.</p>
-                            <div className="app-logo">
-                                <img src="/images/apple-logo-transparent.svg" alt="App Store" />
-                                <img src="/images/play-store-logo3.png" alt="Google Play" />
-                            </div>
-                        </div>
-                        <div className="footer-col">
-                            <img src="/images/Logo_AN.png" alt="Brand Logo" className="footer-logo" />
-                            <p>Монголын хамгийн том авто худалдааны сайт.</p>
-                        </div>
-                        <div className="footer-col">
-                            <h3>Бидний цахим хуудсуудыг дагах</h3>
-                            <ul>
-                                <li><a href="#">Facebook</a></li>
-                                <li><a href="#">Instagram</a></li>
-                                <li><a href="#">Twitter</a></li>
-                                <li><a href="#">YouTube</a></li>
-                            </ul>
-                        </div>
-                        <div className="footer-col">
-                            <h3>Холбоо барих</h3>
-                            <ul>
-                                <li><a href="#">Утас: +976-99008800</a></li>
-                                <li><a href="#">И-Майл хаяг: autonation@sales.mn</a></li>
-                                <li><a href="#">Хаяг байршил: Улаанбаатар хот, СБД 8-р хороо, Оюутны гудамж, МУИС-8</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div className="copyright">
-                    <p>&copy; 2025 Autonation. All rights reserved.</p>
-                </div>
-            </footer>
+            <Footer />
         </>
     );
 }

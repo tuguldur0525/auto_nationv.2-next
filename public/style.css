@@ -543,7 +543,7 @@ nav .fa {
   
   .listing-card {
   flex: 0 0 auto;
-  width: 280px;
+  width: 350px;
   min-height: 460px; /* эсвэл height: 460px; */
   background-color: white;
   border-radius: 10px;

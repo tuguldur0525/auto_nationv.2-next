@@ -35,7 +35,7 @@ export default function Listings() {
                   <div className="listing-location">
                     <i className="fa fa-map-marker"></i> {item.location}
                   </div>
-                  <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
+                  <a href="/delgerengui" className="view-details-btn">Дэлгэрэнгүй</a>
                 </div>
               </div>
             ))}
@@ -60,7 +60,7 @@ export default function Listings() {
                   <div className="listing-location">
                     <i className="fa fa-map-marker"></i> {item.location}
                   </div>
-                  <a href="#" className="view-details-btn">Дэлгэрэнгүй</a>
+                  <a href="/delgerengui" className="view-details-btn">Дэлгэрэнгүй</a>
                 </div>
               </div>
             ))}

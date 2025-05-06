@@ -1,9 +1,12 @@
 // app/delgerengui/page.js
 'use client';
-
+import Head from 'next/head';
 import { useEffect } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Header from 'components/header';
+import Footer from 'components/footer';
+
+import '../public/delgerengui.css';
+
 
 export default function CarDetailPage() {
   useEffect(() => {
@@ -28,7 +31,15 @@ export default function CarDetailPage() {
 
   return (
     <>
+        <Head>
+                <title>AutoNation | Дэлгэрэнгүй</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        </Head>
+
       <Header />
+
       <div className="back-btn">
         <a href="/">
           <i className="fa fa-angle-left"> Буцах</i>

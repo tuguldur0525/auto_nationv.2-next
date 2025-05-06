@@ -3,7 +3,6 @@ import { useState, useRef } from 'react';
 import '../public/style.css';
 import '../public/sell.css';
 import Footer from "../components/footer";
-import Headers from '../components/header';
 
 export default function SellPage() {
     const [specs, setSpecs] = useState([{ key: '', value: '' }]);

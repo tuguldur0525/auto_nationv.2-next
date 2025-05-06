@@ -1,5 +1,3 @@
-// app/buh_zaruud/page.js
-
 import Head from 'next/head';
 import { useEffect } from 'react';
 import Footer from '../components/footer';
@@ -32,9 +30,9 @@ export default function BuhZaruud() {
       </Head>
 
 
-      <Headers />    
+      <Headers />  
+      <FilterSection />  
       <SearchBar />
-      <FilterSection />
       <Listings />
 
 

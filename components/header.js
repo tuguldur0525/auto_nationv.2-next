@@ -15,7 +15,7 @@ export default function Header() {
   }, []);
 
   return (
-    <section className="header">
+    <section className="header1">
       <nav>
         <a href="/">
           <img src="/images/Logo_AN.png" alt="Logo" />
