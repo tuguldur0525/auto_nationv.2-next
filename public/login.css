@@ -332,17 +332,16 @@ nav .fa{
 .auth-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+}
 
 .form-footer {
     text-align: center;
-    margin-top: 25px;
-    color: #7f8c8d;
-    font-size: 15px;
+    margin-top: 20px;
+    font-size: 14px;
 }
 
 .form-footer a {
     color: #5391f5;
-    text-decoration: none;
     font-weight: 500;
     cursor: pointer;
 }
@@ -544,4 +543,3 @@ nav .fa{
     .footer-col {
         margin-bottom: 20px;
     }
-}
