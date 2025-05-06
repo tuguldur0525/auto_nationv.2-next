@@ -136,6 +136,7 @@ textarea:focus {
     border: 1px solid var(--gray);
     border-radius: 8px;
     padding: 20px;
+    margin-top: 20px;
 }
 
 .spec-item {
