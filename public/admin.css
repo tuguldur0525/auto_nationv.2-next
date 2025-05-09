@@ -1,0 +1,138 @@
+/* admin.css - styles for AdminPage, based on profile.css conventions */
+
+/* Container */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Header Styles */
+.profile-header, header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2rem;
+    color: #2e283c;
+}
+
+/* Navigation Links */
+nav[aria-label="Admin navigation"] a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #5391f5;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+nav[aria-label="Admin navigation"] a:hover {
+    color: #211f2a;
+}
+
+/* Section Cards */
+section {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+section h2 {
+    font-size: 1.5rem;
+    color: #252734;
+    margin-bottom: 15px;
+}
+
+/* Listings & Users Items */
+section div[role] {
+    display: flex;
+}
+
+/* Listing Card */
+section .mb-4.p-4 {
+    border: 1px solid #eee;
+}
+
+section .mb-4.p-4 h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #09122c;
+}
+
+section .mb-4.p-4 p {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* Buttons */
+button {
+    border: none;
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button.bg-green-600 {
+    background: #28a745;
+    color: #fff;
+}
+button.bg-green-600:hover {
+    background: #218838;
+}
+
+button.bg-red-600 {
+    background: #dc3545;
+    color: #fff;
+}
+button.bg-red-600:hover {
+    background: #c82333;
+}
+
+/* Responsive Grid */
+.grid {
+    display: grid;
+    gap: 20px;
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Loading & Empty States */
+section p {
+    font-size: 1rem;
+    color: #777;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* Utility Classes */
+.mb-4 { margin-bottom: 1rem; }
+.mt-2 { margin-top: 0.5rem; }
+.p-4 { padding: 1rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.rounded { border-radius: 4px; }
+.shadow { box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+.text-xl { font-size: 1.25rem; }
+.font-medium { font-weight: 500; }
+.text-lg { font-size: 1.125rem; }
+.text-gray-700 { color: #555; }
+.text-gray-500 { color: #777; }
+.text-sm { font-size: 0.875rem; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.space-x-2 > * + * { margin-left: 0.5rem; }
