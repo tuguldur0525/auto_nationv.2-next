@@ -144,6 +144,11 @@ const handleLogin = async (e) => {
     if (!response.ok) {
       throw new Error(data.message || 'Нэвтрэхэд алдаа гарлаа');
     }
+    // Хэрэглэгчийн мэдээлэл localStorage-д хадгалах
+    localStorage.setItem('currentUser', JSON.stringify(data.data)); // Энэ мөрийг нэмнэ
+
+    // Redirect хийх
+    window.location.href = '/profile';
 
     // Redirect based on user role
     switch (data.data.role) {
