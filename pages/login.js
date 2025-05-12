@@ -57,78 +57,112 @@ export default function SignPage() {
     };
 
     const handleSignup = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        
-        const formData = new FormData(e.target);
-        const validationErrors = validateSignup(formData);
-        
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            setLoading(false);
-            return;
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        
-        const newUser = {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            password: formData.get('password')
-        };
-
-        const exists = users.some(user =>
-            user.email === newUser.email || user.phone === newUser.phone
-        );
-
-        if (exists) {
-            setErrors({ general: 'Хэрэглэгч аль хэдийн бүртгэлтэй байна!' });
-            setLoading(false);
-            return;
-        }
-
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-        showForm('login');
-        e.target.reset();
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.target);
+    const validationErrors = validateSignup(formData);
+    
+    if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
         setLoading(false);
-    };
+        return;
+    }
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                password: formData.get('password'),
+                role: 'user'
+            }),
+        });
+
+        const data = await response.json();
         
-        const formData = new FormData(e.target);
-        const validationErrors = validateLogin(formData);
-        
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            setLoading(false);
-            return;
+        if (!response.ok) {
+            throw new Error(data.message || 'Бүртгэл амжилтгүй боллоо');
         }
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const loginResponse = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: formData.get('email'),
+                password: formData.get('password'),
+            }),
+        });
 
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const emailPhone = formData.get('emailPhone');
-        const password = formData.get('password');
-
-        const user = users.find(user =>
-            (user.email === emailPhone || user.phone === emailPhone) &&
-            user.password === password
-        );
-
-        if (user) {
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            window.location.href = '/profile';
-        } else {
-            setErrors({ general: 'Имэйл/утасны дугаар эсвэл нууц үг буруу байна!' });
-            setLoading(false);
+        const loginData = await loginResponse.json();
+        
+        if (!loginResponse.ok) {
+            throw new Error(loginData.message || 'Нэвтрэхэд алдаа гарлаа');
         }
-    };
+
+        // Redirect to profile
+        window.location.href = '/profile';
+    } catch (error) {
+        setErrors({ general: error.message });
+    } finally {
+        setLoading(false);
+    }
+};
+
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setErrors({});
+
+  const formData = new FormData(e.target);
+  const validationErrors = validateLogin(formData);
+
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        emailPhone: formData.get('emailPhone'),
+        password: formData.get('password')
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Нэвтрэхэд алдаа гарлаа');
+    }
+
+    // Redirect based on user role
+    switch (data.data.role) {
+      case 'admin':
+        window.location.href = '/admin';
+        break;
+      case 'dealer':
+        window.location.href = '/profile';
+        break;
+      default:
+        window.location.href = '/profile';
+    }
+
+  } catch (error) {
+    setErrors({ general: error.message });
+  } finally {
+    setLoading(false);
+  }
+};
 
     if (typeof window !== 'undefined' && !localStorage.getItem('users')) {
         localStorage.setItem('users', JSON.stringify([]));
