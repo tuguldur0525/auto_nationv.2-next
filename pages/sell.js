@@ -10,16 +10,7 @@ export default function SellPage() {
     const [dragging, setDragging] = useState(false);
     const fileInputRef = useRef();
 
-    const handleSpecChange = (index, field, value) => {
-        const updatedSpecs = [...specs];
-        updatedSpecs[index][field] = value;       
-        setSpecs(updatedSpecs);
-    };
-
-    const addSpec = () => {
-        setSpecs([...specs, { key: '', value: '' }]);
-    };
-
+    // Add drag-and-drop handlers
     const handleDragOver = (e) => {
         e.preventDefault();
         setDragging(true);
@@ -37,58 +28,84 @@ export default function SellPage() {
         }
     };
 
+    const handleSpecChange = (index, field, value) => {
+        const updatedSpecs = [...specs];
+        updatedSpecs[index][field] = value;       
+        setSpecs(updatedSpecs);
+    };
+
+    const addSpec = () => {
+        setSpecs([...specs, { key: '', value: '' }]);
+    };
+
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
         
-        const readers = files.map(file => {
-            return new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(file);
-            });
-        });
-        
-        Promise.all(readers).then(results => {
-            setImages(prev => [...prev, ...results].slice(0, 10));
-        });
+        // Store files for FormData submission
+        setImages(prev => [...prev, ...files].slice(0, 10));
     };
 
     const removeImage = (index) => {
-        setImages(prev => prev.filter((_, i) => i !== index));
+        setImages(prev => {
+            const newImages = [...prev];
+            URL.revokeObjectURL(newImages[index]);
+            return newImages.filter((_, i) => i !== index);
+        });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        const formData = new FormData();
+        
+        // Add images
+        images.forEach(file => {
+            formData.append('images', file);
+        });
+
+        // Add other fields
         const specifications = {};
         specs.forEach(({ key, value }) => {
             if (key && value) specifications[key] = value;
         });
 
-        const newCar = {
-            name: e.target.carModel.value,
-            price: e.target.price.value,
-            images: images,
-            specs: Object.entries(specifications).map(([key, value]) => `${key}: ${value}`),
-            contact: {
-                email: e.target.sellerEmail.value,
-                phone: e.target.sellerPhone.value
-            },
-            details: {
-                modelYear: e.target.modelYear.value,
-                importYear: e.target.importYear.value,
-                mileage: e.target.mileage.value,
-                description: e.target.description.value
-            },
-            date: new Date().toISOString()
-        };
+        formData.append('title', e.target.title.value);
+        formData.append('km', e.target.km.value);
+        formData.append('fuel', e.target.fuel.value);
+        formData.append('type', e.target.type.value);
+        formData.append('price', e.target.price.value);
+        formData.append('location', e.target.location.value);
+        formData.append('modelYear', e.target.modelYear.value);
+        formData.append('importYear', e.target.importYear.value);
+        formData.append('description', e.target.description.value);
+        formData.append('email', e.target.email.value);
+        formData.append('phone', e.target.phone.value);
+        formData.append('specifications', JSON.stringify(specifications));
 
-        const storedCars = JSON.parse(localStorage.getItem('cars')) || [];
-        storedCars.push(newCar);
-        localStorage.setItem('cars', JSON.stringify(storedCars));
-        
-        alert('Таны зар амжилттай илгээгдлээ!');
-        window.location.href = '/';
+        try {
+            const response = await fetch('/api/vehicles', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Submission failed');
+            
+            alert('Таны зар амжилттай илгээгдлээ! Админ баталгаажуулахыг хүлээнэ үү.');
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert('Алдаа гарлаа! Дахин оролдоно уу.');
+        }
+    };
+
+    // Add menu toggle functions to prevent errors
+    const showMenu = () => {
+        document.getElementById("navLinks").style.right = "0";
+    };
+
+    const hideMenu = () => {
+        document.getElementById("navLinks").style.right = "-200px";
     };
 
     return (
@@ -96,9 +113,9 @@ export default function SellPage() {
         <Head>
             <title>AutoNation | Зар нэмэх</title>
             <link
-          rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-        />
+                rel="stylesheet"
+                href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+            />
         </Head>
         
             <div className="header">
@@ -107,7 +124,7 @@ export default function SellPage() {
                     <img src="/images/Logo_AN.png" alt="Logo" />
                 </a>
                 <div className="nav-links" id="navLinks">
-                    <i className="fa fa-times" onClick={() => hideMenu()}></i>
+                    <i className="fa fa-times" onClick={hideMenu}></i>
                     <ul>
                     <li>
                         <a href="/">Нүүр</a>
@@ -123,7 +140,7 @@ export default function SellPage() {
                     </li>
                     </ul>
                 </div>
-                <i className="fa fa-bars" onClick={() => showMenu()}></i>
+                <i className="fa fa-bars" onClick={showMenu}></i>
                 </nav>
                 <div className="guide-overlay">
                     <div className="guide-container">
@@ -188,10 +205,10 @@ export default function SellPage() {
                                     />
                                 </div>
                                 <div className="image-preview">
-                                    {images.map((src, index) => (
+                                    {images.map((file, index) => (
                                         <div key={index} className="preview-image-container">
                                             <img
-                                                src={src}
+                                                src={URL.createObjectURL(file)}
                                                 className="preview-image"
                                                 alt={`preview-${index}`}
                                             />
@@ -210,13 +227,47 @@ export default function SellPage() {
 
                         <div className="form-col">
                             <div className="form-group">
-                                <label htmlFor="carModel">Машины загвар</label>
+                                <label htmlFor="title">Машины загвар</label>
                                 <input
                                     type="text"
-                                    id="carModel"
-                                    name="carModel"
+                                    id="title"
+                                    name="title"
                                     required
                                     placeholder="Жишээ нь: Toyota Prius"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="fuel">Түлшний төрөл</label>
+                                <select id="fuel" name="fuel" required>
+                                    <option value="">Сонгох</option>
+                                    <option value="Хибрид">Хибрид</option>
+                                    <option value="Бензин">Бензин</option>
+                                    <option value="Дизель">Дизель</option>
+                                    <option value="Цахилгаан">Цахилгаан</option>
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="type">Машины төрөл</label>
+                                <select id="type" name="type" required>
+                                    <option value="">Сонгох</option>
+                                    <option value="Седан">Седан</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="Coupe">Coupe</option>
+                                    <option value="Хэтчбек">Хэтчбек</option>
+                                    <option value="Пикап">Пикап</option>
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="location">Байршил</label>
+                                <input
+                                    type="text"
+                                    id="location"
+                                    name="location"
+                                    required
+                                    defaultValue="Улаанбаатар"
                                 />
                             </div>
 
@@ -246,11 +297,11 @@ export default function SellPage() {
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label htmlFor="mileage">Явсан Миль (km)</label>
+                                    <label htmlFor="km">Явсан Миль (km)</label>
                                     <input
                                         type="number"
-                                        id="mileage"
-                                        name="mileage"
+                                        id="km"
+                                        name="km"
                                         required
                                         min="0"
                                     />
@@ -312,21 +363,21 @@ export default function SellPage() {
                         <h4>Холбогдох Мэдээлэл</h4>
                         <div className="form-row">
                             <div className="form-group">
-                                <label htmlFor="sellerEmail">Email</label>
+                                <label htmlFor="email">Email</label>
                                 <input
                                     type="email"
-                                    id="sellerEmail"
-                                    name="sellerEmail"
+                                    id="email"
+                                    name="email"
                                     required
                                     placeholder="your@email.com"
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="sellerPhone">Утас</label>
+                                <label htmlFor="phone">Утас</label>
                                 <input
                                     type="tel"
-                                    id="sellerPhone"
-                                    name="sellerPhone"
+                                    id="phone"
+                                    name="phone"
                                     required
                                     placeholder="99008800"
                                 />

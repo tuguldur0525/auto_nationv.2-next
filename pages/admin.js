@@ -1,186 +1,257 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import '../public/admin.css'
+import { getSession } from 'next-auth/react';
+import '../public/admin.css';
 
 export default function AdminPage() {
   const router = useRouter();
-  // State for authentication
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  
-  // Mock current user fetch (authentication)
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        // Simulate API call delay
-        await new Promise(res => setTimeout(res, 500));
-        // Mock user data - replace with real auth check
-        const userData = { role: 'admin', name: 'Admin User' }; 
-        setUser(userData);
-      } catch (err) {
-        console.error('Error fetching user:', err);
-        setUser(null);
-      } finally {
-        setAuthLoading(false);
-      }
-    };
-    fetchUser();
-  }, []);
-  
-  // Redirect based on auth status
-  useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.replace('/login'); // Redirect to login if not logged in
-      } else if (user.role !== 'admin') {
-        router.replace('/403'); // Redirect if not an admin
-      }
-    }
-  }, [user, authLoading]);
-
-  // State for pending listings and users
   const [pendingListings, setPendingListings] = useState([]);
+  const [allListings, setAllListings] = useState([]);
   const [users, setUsers] = useState([]);
-  const [loadingListings, setLoadingListings] = useState(true);
-  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState('pending');
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Fetch mock data for listings and users once authenticated
+  // Authentication check
   useEffect(() => {
-    if (user && user.role === 'admin') {
-      // Mock fetch for pending listings
-      const fetchListings = async () => {
-        setLoadingListings(true);
-        try {
-          await new Promise(res => setTimeout(res, 1000)); // Simulate delay
-          const mockListings = [
-            { id: 1, title: 'Cozy Cottage', description: 'A small cottage by the lake.' },
-            { id: 2, title: 'Urban Apartment', description: 'Downtown apartment with city view.' },
-          ];
-          setPendingListings(mockListings);
-        } catch (err) {
-          console.error('Error fetching listings:', err);
-        } finally {
-          setLoadingListings(false);
-        }
-      };
-      // Mock fetch for users
-      const fetchUsers = async () => {
-        setLoadingUsers(true);
-        try {
-          await new Promise(res => setTimeout(res, 1000)); // Simulate delay
-          const mockUsers = [
-            { id: 1, name: 'John Doe', email: 'john@example.com' },
-            { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-          ];
-          setUsers(mockUsers);
-        } catch (err) {
-          console.error('Error fetching users:', err);
-        } finally {
-          setLoadingUsers(false);
-        }
-      };
-      fetchListings();
-      fetchUsers();
+  const checkAuth = async () => {
+    try {
+      const session = await getSession();
+      
+      // Safe session check with optional chaining
+      if (session?.user?.role !== 'admin') {
+        router.replace('/login');
+        return;
+      }
+      
+      // Only set user if session is valid
+      setUser(session.user);
+      setAuthLoading(false);
+      
+    } catch (error) {
+      console.error('Session check error:', error);
+      router.replace('/login');
     }
-  }, [user]);
-
-  // Handlers for admin actions
-  const handleApprove = (id) => {
-    // TODO: Integrate API call to approve listing
-    setPendingListings(prev => prev.filter(listing => listing.id !== id));
-  };
-  const handleReject = (id) => {
-    // TODO: Integrate API call to reject listing
-    setPendingListings(prev => prev.filter(listing => listing.id !== id));
-  };
-  const handleDeleteUser = (id) => {
-    // TODO: Integrate API call to delete user
-    setUsers(prev => prev.filter(u => u.id !== id));
   };
 
-  // Loading or unauthorized state
-  if (authLoading) {
-    return <div>Loading...</div>;
-  }
-  if (!user || user.role !== 'admin') {
-    return null; // Redirecting...
-  }
+  checkAuth();
+}, [router]);
+
+  // Fetch data
+  const fetchData = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      
+      const [listingsRes, usersRes, allListingsRes] = await Promise.all([
+        fetch(`/api/admin/listings?status=${selectedStatus}&page=${currentPage}&limit=10`),
+        fetch('/api/admin/users'),
+        fetch('/api/listings?limit=20')
+      ]);
+
+      if (!listingsRes.ok || !usersRes.ok || !allListingsRes.ok) {
+        throw new Error('Өгөгдөл ачааллахад алдаа гарлаа');
+      }
+
+      const [listingsData, usersData, allListingsData] = await Promise.all([
+        listingsRes.json(),
+        usersRes.json(),
+        allListingsRes.json()
+      ]);
+
+      setPendingListings(listingsData.listings);
+      setTotalPages(listingsData.totalPages);
+      setUsers(usersData);
+      setAllListings(allListingsData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) fetchData();
+  }, [user, selectedStatus, currentPage]);
+
+  // Listing actions
+  const handleListingAction = async (id, status) => {
+    try {
+      const res = await fetch(`/api/admin/listings/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+
+      if (!res.ok) throw new Error('Үйлдэл амжилтгүй боллоо');
+      
+      setPendingListings(prev => prev.filter(listing => listing._id !== id));
+      setAllListings(prev => prev.filter(listing => listing._id !== id));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // User deletion
+  const handleDeleteUser = async (userId) => {
+    if (!confirm('Хэрэглэгчийг устгахдаа итгэлтэй байна уу?')) return;
+    
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Устгах амжилтгүй');
+      
+      setUsers(prev => prev.filter(u => u._id !== userId));
+      setAllListings(prev => prev.filter(l => l.owner._id !== userId));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // Listing deletion
+ const handleDeleteListing = async (listingId) => {
+    if (!confirm('Зарыг устгахдаа итгэлтэй байна уу?')) return;
+    
+    try {
+      const res = await fetch(`/api/admin/listings/${listingId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Устгах амжилтгүй');
+      
+      setAllListings(prev => prev.filter(l => l._id !== listingId));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  if (authLoading || loading) return <div className="loading">Түр хүлээнэ үү...</div>;
+  if (!user) return null;
 
   return (
-    <div className="container mx-auto p-4">
-      {/* Page Header */}
-      <header className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        {/* Navigation links (if any) */}
-        <nav aria-label="Admin navigation">
-          <Link href="/" className="px-3 text-blue-500">Home</Link>
-          <Link href="/profile" className="px-3 text-blue-500">Profile</Link>
-          <Link href="/logout" className="px-3 text-blue-500">Logout</Link>
+    <div className="admin-container">
+      <header className="admin-header">
+        <h1>Админ Хяналтын Самбар</h1>
+        <nav>
+          <Link href="/">Нүүр</Link>
+          <button onClick={() => router.push('/logout')}>Гарах</button>
         </nav>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="admin-content">
         {/* Pending Listings Section */}
-        <section className="p-4 bg-white rounded shadow">
-          <h2 className="text-xl font-semibold mb-4">Pending Listings</h2>
-          {loadingListings ? (
-            <p>Loading listings...</p>
+        <section className="admin-section">
+          <h2>Хүлээгдэж буй зар</h2>
+          <div className="status-filter">
+            <button 
+              className={selectedStatus === 'pending' ? 'active' : ''}
+              onClick={() => setSelectedStatus('pending')}
+            >
+              Хүлээгдэж буй
+            </button>
+            <button
+              className={selectedStatus === 'approved' ? 'active' : ''}
+              onClick={() => setSelectedStatus('approved')}
+            >
+              Зөвшөөрөгдсөн
+            </button>
+            <button
+              className={selectedStatus === 'declined' ? 'active' : ''}
+              onClick={() => setSelectedStatus('declined')}
+            >
+              Татгалзсан
+            </button>
+          </div>
+          
+          {pendingListings.length === 0 ? (
+            <p>Ямар ч зар олдсонгүй</p>
           ) : (
-            <>
-              {pendingListings.length === 0 ? (
-                <p>No pending listings.</p>
-              ) : (
-                pendingListings.map(listing => (
-                  <div key={listing.id} className="mb-4 p-4 border rounded">
-                    <h3 className="text-lg font-medium">{listing.title}</h3>
-                    <p className="text-gray-700">{listing.description}</p>
-                    <div className="mt-2 space-x-2">
-                      <button
-                        onClick={() => handleApprove(listing.id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded"
-                        aria-label={`Approve listing ${listing.title}`}>
-                        Approve
+            pendingListings.map(listing => (
+              <div key={listing._id} className="listing-card">
+                <div className="listing-info">
+                  <h3>{listing.title}</h3>
+                  <p>Үнэ: {listing.price.toLocaleString()}₮</p>
+                  <p>Явсан км: {listing.km.toLocaleString()}</p>
+                  <p>Төрөл: {listing.type}</p>
+                </div>
+                <div className="listing-actions">
+                  {listing.status === 'pending' && (
+                    <>
+                      <button 
+                        className="approve-btn"
+                        onClick={() => handleListingAction(listing._id, 'approved')}
+                      >
+                        Зөвшөөрөх
                       </button>
                       <button
-                        onClick={() => handleReject(listing.id)}
-                        className="bg-red-600 text-white px-3 py-1 rounded"
-                        aria-label={`Reject listing ${listing.title}`}>
-                        Reject
+                        className="reject-btn"
+                        onClick={() => handleListingAction(listing._id, 'declined')}
+                      >
+                        Татгалзах
                       </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </>
+                    </>
+                  )}
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteListing(listing._id)}
+                  >
+                    Устгах
+                  </button>
+                </div>
+              </div>
+            ))
           )}
         </section>
 
-        {/* Users Management Section */}
-        <section className="p-4 bg-white rounded shadow">
-          <h2 className="text-xl font-semibold mb-4">Users Management</h2>
-          {loadingUsers ? (
-            <p>Loading users...</p>
+        {/* Users Section */}
+        <section className="admin-section">
+          <h2>Хэрэглэгчид</h2>
+          {users.length === 0 ? (
+            <p>Хэрэглэгч олдсонгүй</p>
           ) : (
-            <>
-              {users.length === 0 ? (
-                <p>No users found.</p>
-              ) : (
-                users.map(u => (
-                  <div key={u.id} className="mb-4 p-4 border rounded flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">{u.name}</p>
-                      <p className="text-gray-500 text-sm">{u.email}</p>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteUser(u.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded"
-                      aria-label={`Delete user ${u.name}`}>Delete
-                    </button>
-                  </div>
-                ))
-              )}
-            </>
+            users.map(user => (
+              <div key={user._id} className="user-card">
+                <div className="user-info">
+                  <h3>{user.email}</h3>
+                  <p>Эрх: {user.role}</p>
+                  <p>Бүртгүүлсэн: {new Date(user.createdAt).toLocaleDateString()}</p>
+                </div>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDeleteUser(user._id)}
+                >
+                  Устгах
+                </button>
+              </div>
+            ))
+          )}
+        </section>
+
+        {/* All Listings Section */}
+        <section className="admin-section">
+          <h2>Бүх зар</h2>
+          {allListings.length === 0 ? (
+            <p>Ямар ч зар олдсонгүй</p>
+          ) : (
+            allListings.map(listing => (
+              <div key={listing._id} className="listing-card">
+                <div className="listing-info">
+                  <h3>{listing.title}</h3>
+                  <p>Статус: {listing.status}</p>
+                  <p>Үнэ: {listing.price.toLocaleString()}₮</p>
+                  <p>Эзэмшигч: {listing.owner.email}</p>
+                </div>
+                <div className="listing-actions">
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteListing(listing._id)}
+                  >
+                    Устгах
+                  </button>
+                </div>
+              </div>
+            ))
           )}
         </section>
       </div>
