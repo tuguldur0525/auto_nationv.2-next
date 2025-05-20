@@ -17,6 +17,7 @@ export default function LocationSelector({ onLocationSelect }) {
       </p>
       <label htmlFor="country">Байршил сонгох:</label>
       <select id="country" value={location} onChange={handleChange}>
+        <option value="">Байршил сонгох</option>
         <option value="Улаанбаатар">Улаанбаатар</option>
         <option value="Архангай">Архангай</option>
         <option value="Баян-Өлгий">Баян-Өлгий</option>

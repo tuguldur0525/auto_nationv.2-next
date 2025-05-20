@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
-
 import SearchBar from "../components/searchbar";
 import Footer from "../components/footer";
 import Listings from "../components/listings";
-import Header from "../components/header";
-import Zar from "../components/zar";
 import LocationSelector from "../components/locationselector";
 
 export default function Home() {
@@ -82,14 +79,9 @@ export default function Home() {
           <i className="fa fa-bars" onClick={() => showMenu()}></i>
         </nav>
       </section>
-
-      {/* ✅ Байршил сонгох болон Listings хоорондын холбоо */}
       <LocationSelector onLocationSelect={setSelectedLocation} />
-
       <SearchBar />
-
       <Listings location={selectedLocation}/>
-
       <Footer />
     </>
   );
