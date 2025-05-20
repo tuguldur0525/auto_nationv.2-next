@@ -1,5 +1,4 @@
-// pages/index.js
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 
 import SearchBar from "../components/searchbar";
@@ -7,9 +6,11 @@ import Footer from "../components/footer";
 import Listings from "../components/listings";
 import Header from "../components/header";
 import Zar from "../components/zar";
-
+import LocationSelector from "../components/locationselector";
 
 export default function Home() {
+  const [selectedLocation, setSelectedLocation] = useState("");
+
   useEffect(() => {
     const navLinks = document.getElementById("navLinks");
     window.showMenu = function () {
@@ -72,68 +73,24 @@ export default function Home() {
           <div className="nav-links" id="navLinks">
             <i className="fa fa-times" onClick={() => hideMenu()}></i>
             <ul>
-              <li>
-                <a href="/">Нүүр</a>
-              </li>
-              <li>
-                <a href="/buh_zaruud">Бүх зарууд</a>
-              </li>
-              <li>
-                <a href="/sell">Зар нэмэх</a>
-              </li>
-              <li>
-                <a href="/login" className="nevtreh-btn">Нэвтрэх</a>
-              </li>
+              <li><a href="/">Нүүр</a></li>
+              <li><a href="/buh_zaruud">Бүх зарууд</a></li>
+              <li><a href="/sell">Зар нэмэх</a></li>
+              <li><a href="/login" className="nevtreh-btn">Нэвтрэх</a></li>
             </ul>
           </div>
           <i className="fa fa-bars" onClick={() => showMenu()}></i>
         </nav>
-
-        <div className="text-box">
-          <h1>Автомашины хамгийн том зарын нэгдсэн сайт</h1>
-          <p>
-            Яг одоо худалдаалагдаж буй шинэ, хуучин автомашины найдвартай
-            мэдээллийг 21 аймаг, 9 дүүргээс хайх боломжтой.
-          </p>
-          <label htmlFor="country">Байршил сонгох:</label>
-          <select id="country">
-            <option value="ub">Улаанбаатар</option>
-            <option value="ara">Архангай</option>
-            <option value="bao">Баян-Өлгий</option>
-            <option value="bah">Баянхонгор</option>
-            <option value="bul">Булган</option>
-            <option value="goa">Говь-Алтай</option>
-            <option value="gos">Говьсүмбэр</option>
-            <option value="dau">Дархан-уул</option>
-            <option value="dor">Дорноговь</option>
-            <option value="dod">Дорнод</option>
-            <option value="dud">Дундговь</option>
-            <option value="zav">Завхан</option>
-            <option value="uvu">Өвөрхангай</option>
-            <option value="umn">Өмнөговь</option>
-            <option value="orh">Орхон</option>
-            <option value="suh">Сүхбаатар</option>
-            <option value="sel">Сэлэнгэ</option>
-            <option value="tuv">Төв</option>
-            <option value="uvs">Увс</option>
-            <option value="hov">Ховд</option>
-            <option value="hen">Хэнтий</option>
-          </select>
-          <button id="selectBtn">Сонгох</button>
-          <p id="selectedCountry"></p>
-        </div>
       </section>
 
-      {<SearchBar /> }
+      {/* ✅ Байршил сонгох болон Listings хоорондын холбоо */}
+      <LocationSelector onLocationSelect={setSelectedLocation} />
 
-      {<Listings />} 
+      <SearchBar />
 
-      {<Footer/>}
+      <Listings location={selectedLocation}/>
 
-
-      
-
-    
+      <Footer />
     </>
   );
-  }
+}

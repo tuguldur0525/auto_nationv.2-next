@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Header from 'components/header';
+import Footer from 'components/footer';
+import '../public/profile.css';
+
 
 export default function ProfilePage() {
     const router = useRouter();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState(0);
+    const [activeTab, setActiveTab] = useState('personal-info');
 
-    // Function to fetch user data (mocked for now, replace with real API call later)
+    // Function to fetch user data
     async function fetchUserData() {
         let storedUser = null;
         try {
@@ -21,12 +26,18 @@ export default function ProfilePage() {
         return storedUser;
     }
 
+    // Function to handle logout
+    const handleLogout = () => {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('currentUser');
+            router.push('/login');
+        }
+    };
+
     useEffect(() => {
         (async () => {
             const user = await fetchUserData();
             if (!user) {
-                // If user is not found in localStorage, redirect to login
-                // (For development, you could assign a mock user here instead of redirect)
                 router.replace('/login');
                 return;
             }
@@ -34,39 +45,6 @@ export default function ProfilePage() {
             setLoading(false);
         })();
     }, [router]);
-
-    // Compute profile completeness percentage
-    const computeCompletion = () => {
-        if (!userData) return 0;
-        const fields = ['name', 'email', 'phone', 'address', 'avatar'];
-        let filled = 0;
-        fields.forEach(field => {
-            if (userData[field]) {
-                filled++;
-            }
-        });
-        return Math.round((filled / fields.length) * 100);
-    };
-
-    const progressPercent = computeCompletion();
-    const tabs = ['Profile', 'Edit'];
-
-    // Handle keyboard navigation for tabs (left/right arrow, Home/End keys)
-    const handleKeyDown = (event, index) => {
-        if (event.key === 'ArrowRight') {
-            event.preventDefault();
-            setActiveTab((index + 1) % tabs.length);
-        } else if (event.key === 'ArrowLeft') {
-            event.preventDefault();
-            setActiveTab((index - 1 + tabs.length) % tabs.length);
-        } else if (event.key === 'Home') {
-            event.preventDefault();
-            setActiveTab(0);
-        } else if (event.key === 'End') {
-            event.preventDefault();
-            setActiveTab(tabs.length - 1);
-        }
-    };
 
     // Loading state
     if (loading) {
@@ -86,132 +64,217 @@ export default function ProfilePage() {
     // Extract first name for greeting
     const firstName = userData.name ? userData.name.split(' ')[0] : '';
 
-
-
     return (
-        <div className="profile-page container">
-            <header className="profile-header">
-                <div className="completion-bar">
-                    <span id="profile-complete-label">Profile Completion:</span>
-                    <progress
-                        id="profile-complete"
-                        value={progressPercent}
-                        max="100"
-                        aria-labelledby="profile-complete-label"
-                    />
-                    <span>{progressPercent}% Complete</span>
-                </div>
-                <h1>Сайн байна уу, {firstName || 'Хэрэглэгч'}!</h1>
-            </header>
+        <>
+            <Head>
+                <title>AutoNation | Profile</title>
+                <meta charSet="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap"
+                    rel="stylesheet"
+                />
+                <link
+                    rel="stylesheet"
+                    href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+                />
+            </Head>
 
-            <nav role="tablist" aria-label="Profile Tabs">
-                {tabs.map((tab, index) => (
-                    <button
-                        key={index}
-                        role="tab"
-                        aria-selected={activeTab === index}
-                        aria-controls={`tabpanel-${index}`}
-                        id={`tab-${index}`}
-                        tabIndex={activeTab === index ? 0 : -1}
-                        onClick={() => setActiveTab(index)}
-                        onKeyDown={(e) => handleKeyDown(e, index)}
-                        className={`tab-button ${activeTab === index ? 'active' : ''}`}
-                    >
-                        {tab}
-                    </button>
-                ))}
-            </nav>
+            {/* Header */}
+            <Header />
 
-            {tabs.map((tab, index) => (
-                <div
-                    key={index}
-                    role="tabpanel"
-                    id={`tabpanel-${index}`}
-                    aria-labelledby={`tab-${index}`}
-                    hidden={activeTab !== index}
-                    className="tab-panel"
-                >
-                    {index === 0 && (
-                        <section aria-label="Profile information">
-                            <div className="profile-info">
-                                {userData.avatar && (
-                                    <img
-                                        src={userData.avatar}
-                                        alt={`${userData.name || 'User'}'s avatar`}
-                                        className="avatar"
-                                    />
-                                )}
-                                <div className="profile-details">
-                                    <p><strong>Name:</strong> {userData.name}</p>
-                                    <p><strong>Email:</strong> {userData.email}</p>
-                                    <p><strong>Phone:</strong> {userData.phone || '-'}</p>
-                                    <p><strong>Address:</strong> {userData.address || '-'}</p>
+            {/* Profile Section */}
+            <section className="profile-section">
+                <div className="container">
+                    <div className="profile-header">
+                        <div className="profile-avatar">
+                            <img src={userData.avatar || "/images/3_avatar-512.webp"} alt="Profile" />
+                            <button className="edit-avatar-btn" onClick={() => setActiveTab('settings')}>
+                                <i className="fa fa-camera"></i>
+                            </button>
+                        </div>
+                        <div className="profile-info">
+                            <h1>{firstName || 'Хэрэглэгч'}</h1>
+                            <p><i className="fa fa-map-marker"></i> {userData.address || 'Улаанбаатар, Монгол'}</p>
+                            <div className="profile-stats">
+                                <div className="stat-item"><span className="stat-number">12</span><span className="stat-label">Хадгалсан</span></div>
+                                <div className="stat-item"><span className="stat-number">5</span><span className="stat-label">Зар</span></div>
+                                <div className="stat-item"><span className="stat-number">3</span><span className="stat-label">Хэлэлцүүлэг</span></div>
+                            </div>
+                        </div>
+                        <button 
+                            className="edit-profile-btn"
+                            onClick={() => setActiveTab('personal-info')}
+                        >
+                            <i className="fa fa-pencil"></i> Профайл засах
+                        </button>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="profile-tabs">
+                        <button 
+                            onClick={() => setActiveTab('personal-info')} 
+                            className={`tab-btn ${activeTab === 'personal-info' ? 'active' : ''}`}
+                        >
+                            Хувийн мэдээлэл
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('saved-cars')} 
+                            className={`tab-btn ${activeTab === 'saved-cars' ? 'active' : ''}`}
+                        >
+                            Хадгалсан
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('my-listings')} 
+                            className={`tab-btn ${activeTab === 'my-listings' ? 'active' : ''}`}
+                        >
+                            Миний зарууд
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('settings')} 
+                            className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+                        >
+                            Тохиргоо
+                        </button>
+                    </div>
+
+                    <div className="tab-contents">
+                        {/* PERSONAL INFO */}
+                        {activeTab === 'personal-info' && (
+                            <div className="tab-content active">
+                                <h2><i className="fa fa-user"></i> Хувийн мэдээлэл</h2>
+                                <ul>
+                                    <li><strong>Овог:</strong> {userData.name ? userData.name.split(' ')[0] : '-'}</li>
+                                    <li><strong>Нэр:</strong> {userData.name ? userData.name.split(' ').slice(1).join(' ') : '-'}</li>
+                                    <li><strong>Имэйл:</strong> {userData.email || '-'}</li>
+                                    <li><strong>Утас:</strong> {userData.phone || '-'}</li>
+                                    <li><strong>Байршил:</strong> {userData.address || '-'}</li>
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* SAVED CARS */}
+                        {activeTab === 'saved-cars' && (
+                            <div className="tab-content active">
+                                <h2><i className="fa fa-heart"></i> Хадгалсан автомашинууд</h2>
+                                <div className="car-grid">
+                                    <div className="car-card">
+                                        <img src="/images/car1.jpg" alt="Car 1" />
+                                        <h3>Toyota Prius 30</h3>
+                                        <p>2013 | 180,000 км | 18 сая ₮</p>
+                                    </div>
+                                    <div className="car-card">
+                                        <img src="/images/car2.jpg" alt="Car 2" />
+                                        <h3>Honda Fit</h3>
+                                        <p>2012 | 150,000 км | 14 сая ₮</p>
+                                    </div>
                                 </div>
                             </div>
-                        </section>
-                    )}
-                    {index === 1 && (
-                        <section aria-label="Edit profile information">
-                            <h2>Edit Profile</h2>
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                // Save changes to localStorage (future: API call)
-                                localStorage.setItem('currentUser', JSON.stringify(userData));
-                                alert('Profile updated (localStorage updated).');
-                            }}>
-                                <div className="form-group">
-                                    <label htmlFor="name">Name:</label>
-                                    <input
-                                        id="name"
-                                        type="text"
-                                        value={userData.name}
-                                        onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                                    />
+                        )}
+
+                        {/* MY LISTINGS */}
+                        {activeTab === 'my-listings' && (
+                            <div className="tab-content active">
+                                <h2><i className="fa fa-car"></i> Миний зарууд</h2>
+                                <div className="listing-item">
+                                    <h3>Toyota Land Cruiser 200</h3>
+                                    <p>2016 | 95,000 км | 120 сая ₮</p>
+                                    <button>Зар засах</button>
+                                    <button>Устгах</button>
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="email">Email:</label>
-                                    <input
-                                        id="email"
-                                        type="email"
-                                        value={userData.email}
-                                        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                                    />
+                                <div className="listing-item">
+                                    <h3>Nissan X-Trail</h3>
+                                    <p>2014 | 110,000 км | 45 сая ₮</p>
+                                    <button>Зар засах</button>
+                                    <button>Устгах</button>
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="phone">Phone:</label>
-                                    <input
-                                        id="phone"
-                                        type="tel"
-                                        value={userData.phone}
-                                        onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="address">Address:</label>
-                                    <input
-                                        id="address"
-                                        type="text"
-                                        value={userData.address}
-                                        onChange={(e) => setUserData({ ...userData, address: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="avatar">Avatar URL:</label>
-                                    <input
-                                        id="avatar"
-                                        type="url"
-                                        value={userData.avatar}
-                                        onChange={(e) => setUserData({ ...userData, avatar: e.target.value })}
-                                        aria-describedby="avatar-desc"
-                                    />
-                                    <small id="avatar-desc">Link to your profile picture</small>
-                                </div>
-                                <button type="submit" className="btn">Save Changes</button>
-                            </form>
-                        </section>
-                    )}
+                            </div>
+                        )}
+
+                        {/* SETTINGS */}
+                        {activeTab === 'settings' && (
+                            <div className="tab-content active">
+                                <h2><i className="fa fa-cog"></i> Тохиргоо</h2>
+                                <form 
+                                    className="settings-form"
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        localStorage.setItem('currentUser', JSON.stringify(userData));
+                                        alert('Profile updated successfully!');
+                                    }}
+                                >
+                                    <label>
+                                        Нэр:
+                                        <input 
+                                            type="text" 
+                                            value={userData.name || ''}
+                                            onChange={(e) => setUserData({...userData, name: e.target.value})}
+                                        />
+                                    </label>
+                                    <label>
+                                        Имэйл:
+                                        <input 
+                                            type="email" 
+                                            value={userData.email || ''}
+                                            onChange={(e) => setUserData({...userData, email: e.target.value})}
+                                        />
+                                    </label>
+                                    <label>
+                                        Утас:
+                                        <input 
+                                            type="tel" 
+                                            value={userData.phone || ''}
+                                            onChange={(e) => setUserData({...userData, phone: e.target.value})}
+                                        />
+                                    </label>
+                                    <label>
+                                        Байршил:
+                                        <input 
+                                            type="text" 
+                                            value={userData.address || ''}
+                                            onChange={(e) => setUserData({...userData, address: e.target.value})}
+                                        />
+                                    </label>
+                                    <label>
+                                        Avatar URL:
+                                        <input 
+                                            type="url" 
+                                            value={userData.avatar || ''}
+                                            onChange={(e) => setUserData({...userData, avatar: e.target.value})}
+                                        />
+                                    </label>
+                                    <label>
+                                        Нууц үг:
+                                        <input 
+                                            type="password" 
+                                            placeholder="Шинэ нууц үг"
+                                        />
+                                    </label>
+                                    <div className="form-actions">
+                                        <button type="submit">Хадгалах</button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Logout Button - Added at the bottom */}
+                   
                 </div>
-            ))}
-        </div>
+                 <div className="logout-section">
+                        <button 
+                            onClick={handleLogout}
+                            className="logout-btn"
+                        >
+                            <i className="fa fa-sign-out"></i> Гарах
+                        </button>
+                    </div>
+            </section>
+            
+
+            {/* Footer */}
+            <Footer />
+            
+        </>
     );
 }

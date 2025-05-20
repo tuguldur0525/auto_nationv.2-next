@@ -172,11 +172,15 @@ export default function SellPage() {
                         </div>
                     </div>
                 </div>
+                <div class = "header-arrow">
+                    <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                    <p>Машинаа хурдан зар</p>
+                </div>
             </div>
 
             <div className="sell-container">
                 <div className="form-header">
-                    <h1>Машинаа Хурдан Зар</h1>
+                    <h1>Машинаа хурдан зар</h1>
                     <p>Машины мэдээллээ доор оруул</p>
                 </div>
 
@@ -192,8 +196,7 @@ export default function SellPage() {
                                     onDrop={handleDrop}
                                 >
                                     <i className="fa fa-cloud-upload-alt"></i>
-                                    <p>Зурагаа Энд Авчирч Тавь</p>
-                                    <span>эсвэл</span>
+                                    <p>Зурагаа энд авчирч тавь эсвэл</p>                                    
                                     <button type="button" className="browse-btn">Файлаас Сонгох</button>
                                     <input
                                         type="file"
