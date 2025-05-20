@@ -1,8 +1,10 @@
-// app/api/listings/route.js
-
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const locationQuery = searchParams.get("location");
+  const location = searchParams.get("location");
+  const query = searchParams.get("query");
+  const brand = searchParams.get("brand");
+  const manufacturer = searchParams.get("manufacturer");
+  const year = searchParams.get("year");
 
   const newCars = [
     {
@@ -14,6 +16,8 @@ export async function GET(request) {
       type: "Седан",
       price: "125,000,000₮",
       location: "Улаанбаатар",
+      year : 2020,
+      manufacturer: "Toyota",
     },
     {
       id: "2",
@@ -24,6 +28,8 @@ export async function GET(request) {
       type: "SUV",
       price: "345,000,000₮",  
       location: "Дархан",
+      year : 2025,
+      manufacturer: "Toyota",
     },
     {
       id: "3",
@@ -34,6 +40,8 @@ export async function GET(request) {
       type: "Седан",
       price: "135,000,000₮",
       location: "Архангай",
+      year : 2021,
+      manufacturer: "Toyota",
     },
     {
       id: "4",
@@ -44,6 +52,8 @@ export async function GET(request) {
       type: "Седан",
       price: "125,000,000₮",
       location: "Улаанбаатар",
+      year : 2023,
+      manufacturer: "Nissan",
     },
     {
       id: "5",
@@ -54,6 +64,8 @@ export async function GET(request) {
       type: "SUV",
       price: "345,000,000₮",  
       location: "Улаанбаатар",
+      year : 2024,
+      manufacturer: "Nissan",
     },
     {
       id: "6",
@@ -64,6 +76,8 @@ export async function GET(request) {
       type: "Седан",
       price: "135,000,000₮",
       location: "Улаанбаатар",
+      year : 2020,
+      manufacturer: "Toyota",
     },
   ];
 
@@ -77,6 +91,8 @@ export async function GET(request) {
       type: "Седан",
       price: "150,000,000₮",
       location: "Улаанбаатар",
+      year : 2022,
+      manufacturer: "Tesla",
     },
     {
       id: "102",
@@ -87,6 +103,8 @@ export async function GET(request) {
       type: "Седан",
       price: "60,000,000₮",
       location: "Улаанбаатар",
+      year : 2023,
+      manufacturer: "Nissan",
     },
     {
       id: "103",
@@ -97,6 +115,8 @@ export async function GET(request) {
       type: "Pick-up",
       price: "450,000,000₮",
       location: "Да хүрээ",
+      year : 2021,
+      manufacturer: "Tesla",
     },
     {
       id: "104",
@@ -107,6 +127,8 @@ export async function GET(request) {
       type: "Sedan",
       price: "110,000,000₮",
       location: "22 авто худалдаа",
+      year : 2025,
+      manufacturer: "Toyota",
     },
     {
       id: "105",
@@ -117,16 +139,30 @@ export async function GET(request) {
       type: "Roadster",
       price: "240,000,000₮",
       location: "Зайсан",
+      year : 2020,
+      manufacturer: "BMW",
     },
   ];
+ const filterCars = (cars) => {
+    return cars.filter((car) => {
+      const matchLocation = location ? car.location.trim() === location.trim() : true;
+      const matchQuery = query ? car.title.toLowerCase().includes(query.toLowerCase()) : true;
+      const matchBrand = brand ? car.title.toLowerCase().includes(brand.toLowerCase()) : true;
+      const matchManufacturer = manufacturer ? car.title.toLowerCase().includes(manufacturer.toLowerCase()) : true;
+      const matchYear = year ? car.title.includes(year) : true;
 
-  const filteredNewCars = locationQuery
-    ? newCars.filter((car) => car.location.trim() === locationQuery.trim())
-    : newCars;
+      return (
+        matchLocation &&
+        matchQuery &&
+        matchBrand &&
+        matchManufacturer &&
+        matchYear
+      );
+    });
+  };
 
-  const filteredElectricCars = locationQuery
-    ? electricCars.filter((car) => car.location.trim() === locationQuery.trim())
-    : electricCars;
+  const filteredNewCars = filterCars(newCars);
+  const filteredElectricCars = filterCars(electricCars);
 
   return Response.json({
     newCars: filteredNewCars,

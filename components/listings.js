@@ -1,16 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export default function Listings({ location }) {
+export default function Listings({ location, searchParams }) {
   const [listings, setListings] = useState([]);
   const [electricCars, setElectricCars] = useState([]);
 
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const res = await fetch(
-          `/api/listings${location ? `?location=${encodeURIComponent(location)}` : ""}`
-        );
+        const params = new URLSearchParams();
+
+        // Байршил нэмэх (хамгийн гол)
+        if (location) params.append("location", location);
+
+        // Хайлтын нөхцөлүүд нэмэх
+        if (searchParams?.query) params.append("query", searchParams.query);
+        if (searchParams?.brand) params.append("brand", searchParams.brand);
+        if (searchParams?.manufacturer) params.append("manufacturer", searchParams.manufacturer);
+        if (searchParams?.year) params.append("year", searchParams.year);
+
+        const res = await fetch(`/api/listings?${params.toString()}`);
         const data = await res.json();
         setListings(data.newCars);
         setElectricCars(data.electricCars);
@@ -20,7 +29,7 @@ export default function Listings({ location }) {
     };
 
     fetchListings();
-  }, [location]); // ✅ Run again whenever location changes
+  }, [location, searchParams]);
 
   return (
     <section className="all-listings">
