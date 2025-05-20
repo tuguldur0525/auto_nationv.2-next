@@ -143,6 +143,82 @@ export async function GET(request) {
       manufacturer: "BMW",
     },
   ];
+
+  const SUVCars = [
+    {
+      id: "201",
+      title: "Land Criuser 300",
+      image: "/images/land300.avif",
+      km: 0,
+      fuel: "Цахилгаан",
+      type: "Седан",
+      price: "150,000,000₮",
+      location: "Улаанбаатар",
+      year : 2022,
+      manufacturer: "Tesla",
+    },
+    {
+      id: "202",
+      title: "BYD Seal U 2022",
+      image: "/images/BYDsealU.avif",
+      km: 2000,
+      fuel: "Цахилгаан",
+      type: "Седан", 
+      price: "60,000,000₮",
+      location: "Улаанбаатар",
+      year : 2023,
+      manufacturer: "Nissan",
+    },
+    {
+      id: "203",
+      title: "CyberTruck",
+      image: "/images/cybertruck.avif",
+      km: 10,
+      fuel: "Цахилгаан",
+      type: "Pick-up",
+      price: "450,000,000₮",
+      location: "Да хүрээ",
+      year : 2021,
+      manufacturer: "Tesla",
+    },
+    {
+      id: "204",
+      title: "Mercedes Benz G63",
+      image: "/images/G63.jpg",
+      km: 10,
+      fuel: "Цахилгаан",
+      type: "SUV",
+      price: "110,000,000₮",
+      location: "22 авто худалдаа",
+      year : 2025,
+      manufacturer: "Mercedes",
+    },
+    {
+      id: "205",
+      title: "BMW X5",
+      image: "/images/bmwX5.jpeg",
+      km: 10,
+      fuel: "Цахилгаан",
+      type: "Roadster",
+      price: "240,000,000₮",
+      location: "Зайсан",
+      year : 2020,
+      manufacturer: "BMW",
+    },
+    {
+      id: "206",
+      title: "Nissan Patrol Y62",
+      image: "/images/patrolY62.png",
+      km: 10,
+      fuel: "Цахилгаан",
+      type: "SUV",
+      price: "240,000,000₮",
+      location: "Зайсан",
+      year : 2020,
+      manufacturer: "Nissan",
+    },
+  ];
+
  const filterCars = (cars) => {
     return cars.filter((car) => {
       const matchLocation = location ? car.location.trim() === location.trim() : true;
@@ -163,9 +239,11 @@ export async function GET(request) {
 
   const filteredNewCars = filterCars(newCars);
   const filteredElectricCars = filterCars(electricCars);
+  const filteredSUVCars = filterCars(SUVCars);
 
   return Response.json({
     newCars: filteredNewCars,
     electricCars: filteredElectricCars,
+    SUVCars : filteredSUVCars,
   });
 }
