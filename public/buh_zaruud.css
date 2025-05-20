@@ -843,6 +843,9 @@ nav .fa{
   .listing-badge.electric {
     background-color: #00c853; /* Ногоон */
   }
+  .listing-badge.SUV {
+    background-color: #a05209; /*Бор*/
+  }
   
   
 @media (max-width: 768px) {

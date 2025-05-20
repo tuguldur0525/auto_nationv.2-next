@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useEffect } from 'react';
+import { useEffect, useState} from 'react';
 import Footer from '../components/footer';
 import Headers from '../components/header';
 import SearchBar from '../components/searchbar';
@@ -7,6 +7,9 @@ import Listings from '../components/listings';
 import FilterSection from '../components/filterSection';
 
 export default function BuhZaruud() {
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [searchParams,setSearchParams] = useState(null);
+  
   useEffect(() => {
     const navLinks = document.getElementById("navLinks");
     window.showMenu = () => (navLinks.style.right = "0");
@@ -18,7 +21,6 @@ export default function BuhZaruud() {
       <Head>
         <title>AutoNation | Бүх зарууд</title>
         <link rel="stylesheet" href="/buh_zaruud.css" />
-      
         <link
           href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
           rel="stylesheet"
@@ -32,7 +34,8 @@ export default function BuhZaruud() {
 
       <Headers />  
       <FilterSection />  
-      <SearchBar />
+      <SearchBar onSearch={setSearchParams} />
+
       <Listings />
 
 

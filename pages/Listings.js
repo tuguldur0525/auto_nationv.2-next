@@ -1,10 +1,9 @@
 // pages/index.js
 import { useEffect } from "react";
 import Head from "next/head";
-
 import SearchBar from "../components/searchbar";
 import Footer from "../components/footer";
-import Listings from "../components/zar";
+
 export default function Home() {
   useEffect(() => {
     const navLinks = document.getElementById("navLinks");
