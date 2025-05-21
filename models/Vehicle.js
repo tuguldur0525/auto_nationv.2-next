@@ -1,77 +1,75 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose")
 
 const vehicleSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
-  images: [{
-    data: Buffer,
-    contentType: String,
-    uploadedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
+  images: {
+    type: [String],
+    required: true,
+    trim: true,
+  },
+
   km: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   fuel: {
     type: String,
     required: true,
-    enum: ['Хибрид', 'Бензин', 'Дизель', 'Цахилгаан']
+    enum: ["Хибрид", "Бензин", "Дизель", "Цахилгаан"],
   },
   type: {
     type: String,
     required: true,
-    enum: ['Седан', 'SUV', 'Coupe', 'Хэтчбек', 'Пикап']
+    enum: ["Седан", "SUV", "Coupe", "Хэтчбек", "Пикап"],
   },
   price: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   location: {
     type: String,
     required: true,
-    default: 'Улаанбаатар'
+    default: "Улаанбаатар",
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'declined', 'deleted'],
-    default: 'pending'
+    enum: ["pending", "approved", "declined", "deleted"],
+    default: "pending",
   },
   specifications: Map,
   contact: {
     email: {
       type: String,
-      required: true
+      required: true,
     },
     phone: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   details: {
     modelYear: {
       type: Number,
-      required: true
+      required: true,
     },
     importYear: Number,
-    description: String
+    description: String,
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: "User",
+    required: false,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
-});
+    default: Date.now,
+  },
+})
 
-module.exports = mongoose.model('Vehicle', vehicleSchema);
+module.exports = mongoose.model("Vehicle", vehicleSchema)
