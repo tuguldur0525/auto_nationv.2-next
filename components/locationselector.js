@@ -1,21 +1,27 @@
-"use client";
-import { useState } from "react";
+"use client"
+import { useState } from "react"
 export default function LocationSelector({ onLocationSelect }) {
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("")
   const handleChange = (e) => {
-    setLocation(e.target.value);
-  };
+    setLocation(e.target.value)
+  }
   const handleSelect = () => {
-    onLocationSelect(location); 
-  };
+    onLocationSelect(location)
+  }
   return (
     <div className="text-box">
       <h1>Автомашины хамгийн том зарын нэгдсэн сайт</h1>
       <p>
-        Яг одоо худалдаалагдаж буй шинэ, хуучин автомашины найдвартай
-        мэдээллийг 21 аймаг, 9 дүүргээс хайх боломжтой.
+        Яг одоо худалдаалагдаж буй шинэ, хуучин автомашины найдвартай мэдээллийг
+        21 аймаг, 9 дүүргээс хайх боломжтой.
       </p>
-      <label htmlFor="country">Байршил сонгох:</label>
+      <label
+        className="location-label "
+        htmlFor="country"
+        style={{ marginRight: "10px" }}
+      >
+        Байршил сонгох:
+      </label>
       <select id="country" value={location} onChange={handleChange}>
         <option value="">Байршил сонгох</option>
         <option value="Улаанбаатар">Улаанбаатар</option>
@@ -40,7 +46,9 @@ export default function LocationSelector({ onLocationSelect }) {
         <option value="Ховд">Ховд</option>
         <option value="Хэнтий">Хэнтий</option>
       </select>
-      <button id = "selectBtn" onClick={handleSelect}>Сонгох</button>
+      <button id="selectBtn" onClick={handleSelect}>
+        Сонгох
+      </button>
     </div>
-  );
+  )
 }

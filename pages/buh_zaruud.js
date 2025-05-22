@@ -5,7 +5,6 @@ import Header from "../components/header"
 import SearchBar from "../components/searchbar"
 import Listings from "../components/listings"
 import FilterSection from "../components/filterSection"
-import mongoose from "mongoose"
 
 export default function BuhZaruud() {
   const [selectedLocation, setSelectedLocation] = useState("")

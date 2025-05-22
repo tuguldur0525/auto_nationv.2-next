@@ -9,6 +9,16 @@ const vehicleSchema = new mongoose.Schema({
   images: {
     type: [String],
     required: true,
+  },
+
+  brand: {
+    type: String,
+    required: true,
+  },
+
+  model: {
+    type: String,
+    required: true,
     trim: true,
   },
 
@@ -72,4 +82,5 @@ const vehicleSchema = new mongoose.Schema({
   },
 })
 
-module.exports = mongoose.models.Vehicle || mongoose.model("Vehicle", vehicleSchema);
+module.exports =
+  mongoose.models.Vehicle || mongoose.model("Vehicle", vehicleSchema)
