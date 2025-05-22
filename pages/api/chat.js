@@ -10,36 +10,28 @@ export default async function handler(req, res) {
 
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
-  // Машины брэндүүдийн жагсаалт (жишээ)
-  const brands = [
-    "toyota",
-    "honda",
-    "nissan",
-    "lexus",
-    "bmw",
-    "benz",
-    "ford",
-    "hyundai",
-    "kia",
-  ]
+  await dbConnect()
+
+  // Fetch distinct brands and models from the database
+  const brands = await Vehicle.distinct("brand", { status: "approved" })
+  const models = await Vehicle.distinct("model", { status: "approved" })
+
   let carInfo = ""
 
   // Хэрэглэгчийн асуултад брэнд байгаа эсэхийг шалгах
   const lowerMsg = message.toLowerCase()
-  const foundBrand = brands.find((b) => lowerMsg.includes(b))
-
-  if (foundBrand) {
-    await dbConnect()
+  const foundBrand = brands.find((b) => lowerMsg.includes(b.toLowerCase()))
+  const foundModel = models.find((m) => lowerMsg.includes(m.toLowerCase()))
+  if (foundBrand || foundModel) {
     // Статус нь approved заруудыг л харуулах
-    const cars = await Vehicle.find({
-      brand: { $regex: foundBrand, $options: "i" },
-      status: "approved",
-    }).limit(3)
+    const cars = await Vehicle.find({ status: "approved" }).limit(3)
     console.log("Found brand:", foundBrand)
     console.log("Cars from DB:", cars)
     if (cars.length > 0) {
       carInfo =
-        `Манай сайтад дараах ${foundBrand.toUpperCase()} машинууд байна:\n` +
+        `Манай сайтад дараах ${(
+          foundBrand || foundModel
+        ).toUpperCase()} машинууд байна:\n` +
         cars
           .map(
             (car) =>
@@ -47,7 +39,9 @@ export default async function handler(req, res) {
           )
           .join("\n")
     } else {
-      carInfo = `${foundBrand.toUpperCase()} машин одоогоор байхгүй байна.`
+      carInfo = `${(
+        foundBrand || foundModel
+      ).toUpperCase()} машин одоогоор байхгүй байна.`
     }
   }
 
