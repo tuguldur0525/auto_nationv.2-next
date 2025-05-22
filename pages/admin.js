@@ -1,11 +1,16 @@
+// pages/admin.js
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import '../public/admin.css';
+// Assuming your admin.css is in public/. This import should typically work
+// if you have 'css-loader' and 'postcss-loader' configured in next.config.js for CSS.
+// If you are using module CSS (e.g., admin.module.css), the import syntax changes.
+import '../public/admin.css'; // Verify this path and how you handle CSS in Next.js
 
 export default function AdminPage() {
   const router = useRouter();
 
+  // State variables
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
@@ -15,24 +20,30 @@ export default function AdminPage() {
   const [selectedStatus, setSelectedStatus] = useState('pending');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [error, setError] = useState(null); // Keep error state at the end or where you prefer
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null); // For success messages
 
-  // --- Initial Render State Log ---
-  console.log('--- Current Render State (Initial) ---');
+  // Console logs for debugging render state
+  console.log('--- Current Render State ---');
   console.log('User:', user);
   console.log('Auth Loading:', authLoading);
   console.log('Data Loading:', dataLoading);
   console.log('Error:', error);
-  console.log('Pending Listings:', pendingListings.length);
-  console.log('All Listings:', allListings.length);
-  console.log('Users:', users.length);
-  console.log('------------------------------------');
+  console.log('Message:', message);
+  console.log('Pending Listings Count:', pendingListings.length);
+  console.log('All Listings Count:', allListings.length);
+  console.log('Users Count:', users.length);
+  console.log('Selected Status:', selectedStatus);
+  console.log('Current Page:', currentPage);
+  console.log('Total Pages:', totalPages);
+  console.log('----------------------------');
 
-  // Authentication Check (already good, just including for completeness)
+  // Authentication Check
   const checkCustomAuth = useCallback(async () => {
     console.log('checkCustomAuth initiated...');
     setAuthLoading(true);
     setError(null);
+    setMessage(null); // Clear messages on new auth check
 
     try {
       const res = await fetch('/api/auth/validate-token', {
@@ -48,7 +59,7 @@ export default function AdminPage() {
         setError(data.message || 'Authentication failed.');
         setUser(null);
         if (res.status === 401 || res.status === 403) {
-            router.replace('/login');
+          router.replace('/login');
         }
         return;
       }
@@ -56,16 +67,17 @@ export default function AdminPage() {
       if (data.user?.role === 'admin') {
         setUser(data.user);
         setError(null);
+        setMessage('Амжилттай нэвтэрлээ.'); // Success message
         console.log('Auth successful! User set:', data.user.email);
       } else {
         console.log(`User ${data.user?.email} is not an admin (${data.user?.role || 'no role'}).`);
-        setError('Not authorized: You do not have admin privileges.');
+        setError('Эрхгүй хандалт: Та админы эрхгүй байна.'); // Mongolian for "Unauthorized access"
         setUser(null);
         router.replace('/login');
       }
     } catch (err) {
       console.error('Auth error (in checkCustomAuth):', err);
-      setError('Authentication check failed: ' + err.message);
+      setError('Нэвтрэх үед алдаа гарлаа: ' + err.message); // Mongolian for "Authentication error"
       setUser(null);
       router.replace('/login');
     } finally {
@@ -83,17 +95,15 @@ export default function AdminPage() {
 
   // Data Fetching
   const fetchData = useCallback(async () => {
-    // Corrected: Removed `dataLoading` from the dependency array, but kept the check inside.
-    // The check `if (!user || dataLoading)` correctly prevents re-entry while loading.
-    // `dataLoading` doesn't need to be in the dependency array because it's set and reset within this function.
-    if (!user || dataLoading) { // Keep this check inside
+    if (!user || dataLoading) {
       console.log('fetchData skipped: user or dataLoading status:', user, dataLoading);
       return;
     }
 
     try {
-      setDataLoading(true); // Set loading true at the start
-      setError(null); // Clear any previous data errors
+      setDataLoading(true);
+      setError(null);
+      setMessage(null); // Clear messages on new data fetch
       console.log('Starting data fetch...');
 
       const [listingsRes, usersRes, allListingsRes] = await Promise.all([
@@ -108,9 +118,9 @@ export default function AdminPage() {
         }),
       ]);
 
-      if (!listingsRes.ok) throw new Error(`Failed to load listings: ${listingsRes.status} ${listingsRes.statusText}`);
-      if (!usersRes.ok) throw new Error(`Failed to load users: ${usersRes.status} ${usersRes.statusText}`);
-      if (!allListingsRes.ok) throw new Error(`Failed to load all listings: ${allListingsRes.status} ${allListingsRes.statusText}`);
+      if (!listingsRes.ok) throw new Error(`Зар ачаалахад алдаа гарлаа: ${listingsRes.status} ${listingsRes.statusText}`); // Mongolian: "Failed to load listings"
+      if (!usersRes.ok) throw new Error(`Хэрэглэгч ачаалахад алдаа гарлаа: ${usersRes.status} ${usersRes.statusText}`); // Mongolian: "Failed to load users"
+      if (!allListingsRes.ok) throw new Error(`Бүх зар ачаалахад алдаа гарлаа: ${allListingsRes.status} ${allListingsRes.statusText}`); // Mongolian: "Failed to load all listings"
 
       const [listingsData, usersData, allListingsData] = await Promise.all([
         listingsRes.json(),
@@ -131,17 +141,17 @@ export default function AdminPage() {
       console.log('Fetched Pending Listings (count):', listingsData.listings?.length);
       console.log('Fetched All Listings (count):', (allListingsData.newCars?.length || 0) + (allListingsData.electricCars?.length || 0) + (allListingsData.SUVCars?.length || 0));
       console.log('Fetched Users (count):', usersData?.length);
+      setMessage('Мэдээллийг амжилттай татлаа.'); // Mongolian: "Data fetched successfully."
 
     } catch (err) {
       console.error('Fetch error in fetchData:', err);
-      setError('Failed to load admin data: ' + err.message);
+      setError(err.message);
     } finally {
-      setDataLoading(false); // Set loading false after fetch completes or errors
+      setDataLoading(false);
       console.log('Data fetch process finished. dataLoading set to false.');
     }
-  }, [user, selectedStatus, currentPage]); // <-- REMOVED dataLoading from dependencies
+  }, [user, selectedStatus, currentPage]);
 
-  // Effect to trigger data fetching after user is authenticated
   useEffect(() => {
     if (user && !authLoading) {
       console.log('User is authenticated, authLoading is false. Calling fetchData...');
@@ -149,75 +159,170 @@ export default function AdminPage() {
     } else {
       console.log('fetchData not called yet. Current state -> User:', user, 'AuthLoading:', authLoading);
     }
-  }, [user, authLoading, fetchData]); // Dependencies: user, authLoading, fetchData
+  }, [user, authLoading, fetchData]);
 
+  // Listing Actions
+  const handleListingAction = async (id, status) => {
+    try {
+      setDataLoading(true); // Indicate action is in progress
+      setError(null);
+      setMessage(null);
 
-  // Render based on loading/error states
+      const res = await fetch(`/api/admin/listings/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Үйлдлийг гүйцэтгэхэд алдаа гарлаа.'); // Mongolian: "Action failed"
+      }
+
+      // Optimistic UI update: Remove from pendingListings, update status in allListings
+      setPendingListings(prev => prev.filter(l => l._id !== id));
+      setAllListings(prev => prev.map(l =>
+        l._id === id ? { ...l, status } : l
+      ));
+
+      setMessage(`Зар амжилттай ${status === 'approved' ? 'зөвшөөрөгдлөө' : 'татгалзлаа'}.`); // Mongolian: "Listing successfully approved/declined."
+      // Optionally re-fetch data to ensure consistency, especially if not all listings are in `allListings`
+      // fetchData(); // Uncomment if you want to re-fetch all data after action
+    } catch (err) {
+      console.error('Listing action error:', err);
+      setError(err.message);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // User Deletion
+  const handleDeleteUser = async (userId) => {
+    if (!confirm('Энэ хэрэглэгчийг устгахыг баталгаажуулах уу? Энэ нь тэдний бүх зарыг устгана.')) return; // Mongolian: "Confirm user deletion? This will delete all their listings."
+
+    try {
+      setDataLoading(true);
+      setError(null);
+      setMessage(null);
+
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Хэрэглэгч устгахад алдаа гарлаа.'); // Mongolian: "Failed to delete user"
+      }
+
+      setUsers(prev => prev.filter(u => u._id !== userId));
+      setAllListings(prev => prev.filter(l => l.owner?._id !== userId)); // Filter listings by owner ID
+      setPendingListings(prev => prev.filter(l => l.owner?._id !== userId)); // Filter pending listings too
+
+      setMessage('Хэрэглэгчийг амжилттай устгалаа.'); // Mongolian: "User deleted successfully."
+    } catch (err) {
+      console.error('User deletion error:', err);
+      setError(err.message);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // Listing Deletion
+  const handleDeleteListing = async (listingId) => {
+    if (!confirm('Энэ зарыг устгахыг баталгаажуулах уу?')) return; // Mongolian: "Confirm listing deletion?"
+
+    try {
+      setDataLoading(true);
+      setError(null);
+      setMessage(null);
+
+      const res = await fetch(`/api/admin/listings/${listingId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Зар устгахад алдаа гарлаа.'); // Mongolian: "Failed to delete listing"
+      }
+
+      setAllListings(prev => prev.filter(l => l._id !== listingId));
+      setPendingListings(prev => prev.filter(l => l._id !== listingId));
+
+      setMessage('Зарыг амжилттай устгалаа.'); // Mongolian: "Listing deleted successfully."
+    } catch (err) {
+      console.error('Listing deletion error:', err);
+      setError(err.message);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  // --- Render based on loading/error states ---
   if (authLoading) {
-    console.log('Rendering: Checking authentication...');
-    return <div className="loading">Checking authentication...</div>;
+    return <div className="loading">Нэвтрэлт шалгаж байна...</div>; // Mongolian: "Checking authentication..."
   }
   if (!user) {
-    console.log('Rendering: Not authorized (user is null).');
-    return <div className="error">Not authorized. Please log in as an administrator.</div>;
+    return <div className="error">Та нэвтрэх эрхгүй байна.</div>; // Mongolian: "Not authorized"
   }
-  if (error) {
-    console.log('Rendering: Error state:', error);
-    return <div className="error">Error: {error}</div>;
-  }
-  if (dataLoading) {
-    console.log('Rendering: Loading data...');
-    return <div className="loading">Loading data...</div>;
-  }
+  // No separate dataLoading return here, let it be handled inside the main render
+  // and display messages there. This allows partial content to show if some data is loaded.
+  // if (dataLoading) { return <div className="loading">Мэдээлэл ачаалж байна...</div>; }
 
-  // Listing Actions (no changes needed)
-  const handleListingAction = async (id, status) => { /* ... */ };
-  const handleDeleteUser = async (userId) => { /* ... */ };
-  const handleDeleteListing = async (listingId) => { /* ... */ };
-
-
-  // Main Render (no changes needed)
   return (
     <div className="admin-container">
       <header className="admin-header">
         <h1>Админ Хяналтын Самбар</h1>
         <nav>
-          <Link href="/">Нүүр</Link>
-          <button onClick={async () => {
-            try {
-              console.log('Attempting to log out...');
-              await fetch('/api/auth/logout', { method: 'POST' });
-              setUser(null);
-              setError(null);
-              setAuthLoading(true);
-              console.log('Logout successful. Redirecting to /login.');
-              router.replace('/login');
-            } catch (err) {
-              console.error('Logout error:', err);
-              alert('Гарахад алдаа гарлаа.');
-            }
-          }}>Гарах</button>
+          <Link href="/" className="nav-link">Нүүр</Link>
+          <button
+            onClick={async () => {
+              try {
+                console.log('Attempting to log out...');
+                await fetch('/api/auth/logout', { method: 'POST' });
+                setUser(null);
+                setError(null);
+                setMessage(null);
+                setAuthLoading(true);
+                console.log('Logout successful. Redirecting to /login.');
+                router.replace('/login');
+              } catch (err) {
+                console.error('Logout error:', err);
+                alert('Гарахад алдаа гарлаа.');
+              }
+            }}
+            className="logout-btn"
+          >
+            Гарах
+          </button>
         </nav>
       </header>
 
-      <div className="admin-content">
+      <main className="admin-main">
+        {/* Global loading/error/message display */}
+        {dataLoading && <div className="loading-overlay">Мэдээлэл ачаалж байна...</div>} {/* Overlay for ongoing data fetches */}
+        {error && <div className="alert error">{error}</div>}
+        {message && <div className="alert success">{message}</div>}
+
         <section className="admin-section">
           <h2>Хүлээгдэж буй зар</h2>
           <div className="status-filter">
             <button
-              className={selectedStatus === 'pending' ? 'active' : ''}
+              className={`filter-btn ${selectedStatus === 'pending' ? 'active' : ''}`}
               onClick={() => { setCurrentPage(1); setSelectedStatus('pending'); }}
             >
               Хүлээгдэж буй
             </button>
             <button
-              className={selectedStatus === 'approved' ? 'active' : ''}
+              className={`filter-btn ${selectedStatus === 'approved' ? 'active' : ''}`}
               onClick={() => { setCurrentPage(1); setSelectedStatus('approved'); }}
             >
               Зөвшөөрөгдсөн
             </button>
             <button
-              className={selectedStatus === 'declined' ? 'active' : ''}
+              className={`filter-btn ${selectedStatus === 'declined' ? 'active' : ''}`}
               onClick={() => { setCurrentPage(1); setSelectedStatus('declined'); }}
             >
               Татгалзсан
@@ -225,57 +330,67 @@ export default function AdminPage() {
           </div>
 
           {pendingListings.length === 0 ? (
-            <p>Ямар ч зар олдсонгүй</p>
+            <p className="no-data">Ямар ч зар олдсонгүй</p>
           ) : (
-            pendingListings.map(listing => (
-              <div key={listing._id} className="listing-card">
-                <div className="listing-info">
-                  <h3>{listing.title}</h3>
-                  <p>Үнэ: {listing.price?.toLocaleString()}₮</p>
-                  <p>Явсан км: {listing.km?.toLocaleString()}</p>
-                  <p>Төрөл: {listing.type}</p>
-                  <p>Статус: {listing.status}</p>
-                  <p>Эзэмшигч: {listing.owner?.email || 'Мэдээлэлгүй'}</p>
-                </div>
-                <div className="listing-actions">
-                  {listing.status === 'pending' && (
-                    <>
-                      <button
-                        className="approve-btn"
-                        onClick={() => handleListingAction(listing._id, 'approved')}
-                      >
-                        Зөвшөөрөх
-                      </button>
-                      <button
-                        className="reject-btn"
-                        onClick={() => handleListingAction(listing._id, 'declined')}
-                      >
-                        Татгалзах
-                      </button>
-                    </>
+            <div className="listings-grid">
+              {pendingListings.map(listing => (
+                <div key={listing._id} className="listing-card">
+                  {listing.images && listing.images.length > 0 && (
+                    <img src={listing.images[0]} alt={listing.title} className="listing-image" />
                   )}
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDeleteListing(listing._id)}
-                  >
-                    Устгах
-                  </button>
+                  <div className="listing-info">
+                    <h3>{listing.title}</h3>
+                    <p>Үнэ: {listing.price?.toLocaleString()}₮</p>
+                    <p>Явсан км: {listing.km?.toLocaleString()}</p>
+                    <p>Төрөл: {listing.type}</p>
+                    <p>Статус: <span className={`status-badge status-${listing.status}`}>{listing.status}</span></p>
+                    <p>Эзэмшигч: {listing.owner?.email || 'Мэдээлэлгүй'}</p>
+                  </div>
+                  <div className="listing-actions">
+                    {listing.status === 'pending' && (
+                      <>
+                        <button
+                          className="action-btn approve-btn"
+                          onClick={() => handleListingAction(listing._id, 'approved')}
+                          disabled={dataLoading} // Disable during action
+                        >
+                          Зөвшөөрөх
+                        </button>
+                        <button
+                          className="action-btn reject-btn"
+                          onClick={() => handleListingAction(listing._id, 'declined')}
+                          disabled={dataLoading} // Disable during action
+                        >
+                          Татгалзах
+                        </button>
+                      </>
+                    )}
+                    <button
+                      className="action-btn delete-btn"
+                      onClick={() => handleDeleteListing(listing._id)}
+                      disabled={dataLoading} // Disable during action
+                    >
+                      Устгах
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
           {totalPages > 1 && (
             <div className="pagination">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || dataLoading}
+                className="pagination-btn"
               >
                 Өмнөх
               </button>
               <span>Хуудас {currentPage} / {totalPages}</span>
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || dataLoading}
+                className="pagination-btn"
               >
                 Дараах
               </button>
@@ -287,23 +402,26 @@ export default function AdminPage() {
         <section className="admin-section">
           <h2>Хэрэглэгчид</h2>
           {users.length === 0 ? (
-            <p>Хэрэглэгч олдсонгүй</p>
+            <p className="no-data">Хэрэглэгч олдсонгүй</p>
           ) : (
-            users.map(userItem => (
-              <div key={userItem._id} className="user-card">
-                <div className="user-info">
-                  <h3>{userItem.email}</h3>
-                  <p>Эрх: {userItem.role}</p>
-                  <p>Бүртгүүлсэн: {new Date(userItem.createdAt).toLocaleDateString()}</p>
+            <div className="users-grid">
+              {users.map(userItem => (
+                <div key={userItem._id} className="user-card">
+                  <div className="user-info">
+                    <h3>{userItem.email}</h3>
+                    <p>Эрх: <span className={`role-badge role-${userItem.role}`}>{userItem.role}</span></p>
+                    <p>Бүртгүүлсэн: {new Date(userItem.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <button
+                    className="action-btn delete-btn"
+                    onClick={() => handleDeleteUser(userItem._id)}
+                    disabled={dataLoading || userItem.role === 'admin'} // Prevent deleting self or other admins
+                  >
+                    Устгах
+                  </button>
                 </div>
-                <button
-                  className="delete-btn"
-                  onClick={() => handleDeleteUser(userItem._id)}
-                >
-                  Устгах
-                </button>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </section>
 
@@ -311,29 +429,35 @@ export default function AdminPage() {
         <section className="admin-section">
           <h2>Бүх зар</h2>
           {allListings.length === 0 ? (
-            <p>Ямар ч зар олдсонгүй</p>
+            <p className="no-data">Ямар ч зар олдсонгүй</p>
           ) : (
-            allListings.map(listing => (
-              <div key={listing._id} className="listing-card">
-                <div className="listing-info">
-                  <h3>{listing.title}</h3>
-                  <p>Статус: {listing.status}</p>
-                  <p>Үнэ: {listing.price?.toLocaleString()}₮</p>
-                  <p>Эзэмшигч: {listing.owner?.email || 'Мэдээлэлгүй'}</p>
+            <div className="listings-grid">
+              {allListings.map(listing => (
+                <div key={listing._id} className="listing-card">
+                  {listing.images && listing.images.length > 0 && (
+                    <img src={listing.images[0]} alt={listing.title} className="listing-image" />
+                  )}
+                  <div className="listing-info">
+                    <h3>{listing.title}</h3>
+                    <p>Статус: <span className={`status-badge status-${listing.status}`}>{listing.status}</span></p>
+                    <p>Үнэ: {listing.price?.toLocaleString()}₮</p>
+                    <p>Эзэмшигч: {listing.owner?.email || 'Мэдээлэлгүй'}</p>
+                  </div>
+                  <div className="listing-actions">
+                    <button
+                      className="action-btn delete-btn"
+                      onClick={() => handleDeleteListing(listing._id)}
+                      disabled={dataLoading}
+                    >
+                      Устгах
+                    </button>
+                  </div>
                 </div>
-                <div className="listing-actions">
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDeleteListing(listing._id)}
-                  >
-                    Устгах
-                  </button>
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </section>
-      </div>
+      </main>
     </div>
   );
 }
