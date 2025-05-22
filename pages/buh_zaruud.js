@@ -5,6 +5,7 @@ import Header from "../components/header"
 import SearchBar from "../components/searchbar"
 import Listings from "../components/listings"
 import FilterSection from "../components/filterSection"
+import Chatbot from "../components/Chatbot"
 
 export default function BuhZaruud() {
   const [selectedLocation, setSelectedLocation] = useState("")
@@ -62,7 +63,7 @@ export default function BuhZaruud() {
       <SearchBar onSearch={setSearchParams} />
 
       <Listings ads={ads} />
-
+      <Chatbot />
       <Footer />
     </>
   )
