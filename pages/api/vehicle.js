@@ -1,3 +1,9 @@
+import Vehicle from "@/models/Vehicle"
+import dbConnect from "../../../lib/dbConnect"
+import authMiddleware from "../../../lib/middleware/authMiddleware"
+import multer from "multer"
+
+const upload = multer({ storage: multer.memoryStorage() })
 import formidable from "formidable"
 import dbConnect from "../../../lib/dbConnect"
 import Vehicle from "@/models/Vehicle"
@@ -8,8 +14,18 @@ export const config = {
     bodyParser: false,
   },
 }
+    bodyParser: false,
+  },
+}
 
 export default async function handler(req, res) {
+  await dbConnect()
+
+  const isAuthenticated = await authMiddleware(null)(req, res)
+
+  if (!isAuthenticated) {
+    return
+  }
   await dbConnect()
   const isAuthenticated = await authMiddleware(null)(req, res)
   if (!isAuthenticated) return
