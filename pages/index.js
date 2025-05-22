@@ -1,9 +1,11 @@
+// pages/index.js
 import { useEffect, useState } from "react"
 import Head from "next/head"
 import SearchBar from "../components/searchbar"
 import Footer from "../components/footer"
-import Listings from "../components/listings"
+import Listings from "../components/listings" // Correct import for Listings component
 import LocationSelector from "../components/locationselector"
+import Header from "../components/header" // Assuming you have a Header component
 
 export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("")
@@ -11,6 +13,7 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
+    // Menu toggle functions
     const navLinks = document.getElementById("navLinks")
     window.showMenu = function () {
       navLinks.style.right = "0"
@@ -19,6 +22,7 @@ export default function Home() {
       navLinks.style.right = "-200px"
     }
 
+    // Populate year dropdown (if 'yearDropdown' element exists)
     const yearDropdown = document.getElementById("yearDropdown")
     if (yearDropdown) {
       for (let i = new Date().getFullYear(); i >= 2000; i--) {
@@ -29,22 +33,26 @@ export default function Home() {
       }
     }
 
-    const zarNemehLink = document.querySelector('a[href="zar_nemeh.html"]')
+    // "Зар нэмэх" (Add Listing) link authentication check
+    // Ensure this link actually points to /sell not zar_nemeh.html
+    const zarNemehLink = document.querySelector('a[href="/sell"]') // Changed to /sell
     if (zarNemehLink) {
       zarNemehLink.addEventListener("click", function (e) {
         const isAuthenticated = localStorage.getItem("isAuthenticated")
         if (!isAuthenticated) {
           e.preventDefault()
           alert("Та эхлээд бүртгүүлнэ үү.")
-          window.location.href = "nevtreh.html"
+          window.location.href = "/login" // Changed to Next.js route
         }
       })
     }
 
+    // Session timeout for isAuthenticated
     const interval = setInterval(() => {
       localStorage.removeItem("isAuthenticated")
-    }, 1800000)
+    }, 1800000) // 30 minutes
 
+    // Load currentUser from localStorage
     if (typeof window !== "undefined") {
       const user = localStorage.getItem("currentUser")
       if (user) {
@@ -52,6 +60,7 @@ export default function Home() {
       }
     }
 
+    // Cleanup interval on component unmount
     return () => clearInterval(interval)
   }, [])
 
@@ -70,7 +79,6 @@ export default function Home() {
           href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         />
       </Head>
-
       <section className="header">
         <nav>
           <a href="/">
@@ -109,6 +117,7 @@ export default function Home() {
       </section>
       <LocationSelector onLocationSelect={setSelectedLocation} />
       <SearchBar onSearch={setSearchParams} />
+      {/* Listings component now handles its own data fetching based on props */}
       <Listings location={selectedLocation} searchParams={searchParams} />
       <Footer />
     </>
