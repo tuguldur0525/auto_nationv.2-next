@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('DEBUG: Decoded token payload:', decoded);
-    console.log('DEBUG: Attempting to find user with ID:', decoded.id);
+    console.log('DEBUG: Attempting to find user with ID:', decoded.userId);
     const user = await User.findById(decoded.userId).select('-password');
 
     console.log('DEBUG: User found in DB:', user ? user.email : 'None');
