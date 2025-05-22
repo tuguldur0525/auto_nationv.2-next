@@ -1,5 +1,6 @@
 import Vehicle from '@/models/Vehicle';
-import { getSession } from 'next-auth/react';
+import dbConnect from '../../../lib/dbConnect';
+import authMiddleware from '../../../lib/middleware/authMiddleware';
 import multer from 'multer';
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -11,13 +12,27 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  const session = await getSession({ req });
-  if (!session?.user) return res.status(401).json({ error: 'Unauthorized' });
+  await dbConnect();
 
-  upload.array('images')(req, res, async (err) => {
-    if (err) return res.status(500).json({ error: 'File upload error' });
+  const isAuthenticated = await authMiddleware(null)(req, res);
+
+  if (!isAuthenticated) {
+    return;
+  }
+
+  await new Promise((resolve, reject) => {
+    upload.array('images')(req, res, (err) => {
+      if (err) {
+        console.error('File upload error:', err);
+        return reject({ status: 500, message: 'File upload error' });
+      }
+      resolve();
+    });
+  });
 
     try {
+      const ownerId = req.user._id;
+
       const vehicleData = {
         title: req.body.title,
         km: parseInt(req.body.km),
@@ -35,18 +50,23 @@ export default async function handler(req, res) {
           importYear: req.body.importYear ? parseInt(req.body.importYear) : undefined,
           description: req.body.description
         },
-        owner: session.user.id,
-        images: req.files?.map(file => ({
-          data: file.buffer,
-          contentType: file.mimetype
-        })) || []
+        owner: ownerId,
+        images: {
+          type: [String], // <--- This means an array of URLs (strings)
+          required: true,
+          trim: true,
+        },
       };
 
       const newVehicle = await Vehicle.create(vehicleData);
-      res.status(201).json(newVehicle);
-    } catch (error) {
-      console.error('Creation error:', error);
-      res.status(500).json({ error: 'Server error' });
+    res.status(201).json({ success: true, vehicle: newVehicle }); // Consistent success response
+  } catch (error) {
+    console.error('Vehicle creation API error:', error);
+    if (error.name === 'ValidationError') {
+        // Mongoose validation errors
+        const messages = Object.values(error.errors).map(val => val.message);
+        return res.status(400).json({ success: false, message: messages.join(', ') });
     }
-  });
-}
+    res.status(500).json({ success: false, message: 'Server error during vehicle creation.' });
+  }
+};

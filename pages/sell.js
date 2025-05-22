@@ -198,10 +198,6 @@ export default function SellPage() {
             </div>
           </div>
         </div>
-        <div class="header-arrow">
-          <i class="fa fa-angle-double-down" aria-hidden="true"></i>
-          <p>Машинаа хурдан зар</p>
-        </div>
       </div>
 
       <div className="sell-container">

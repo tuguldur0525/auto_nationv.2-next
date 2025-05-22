@@ -1,4 +1,3 @@
-// pages/index.js
 import { useEffect } from "react";
 import Head from "next/head";
 import SearchBar from "../components/searchbar";

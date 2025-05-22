@@ -1,62 +1,78 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { getSession } from 'next-auth/react';
 import '../public/admin.css';
 
 export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(false);
   const [pendingListings, setPendingListings] = useState([]);
   const [allListings, setAllListings] = useState([]);
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('pending');
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Authentication check
+  // Authentication Check
   useEffect(() => {
-  const checkAuth = async () => {
-    try {
-      const session = await getSession();
-      
-      // Safe session check with optional chaining
-      if (session?.user?.role !== 'admin') {
+    const checkCustomAuth = async () => {
+      try {
+        setAuthLoading(true);
+        const res = await fetch('/api/auth/validate-token', {
+          credentials: 'include'
+        });
+
+        if (!res.ok) {
+          router.replace('/login');
+          return;
+        }
+
+        const data = await res.json();
+        if (data.user?.role === 'admin') {
+          setUser(data.user);
+          setError(null);
+        } else {
+          router.replace('/login');
+        }
+      } catch (err) {
+        console.error('Auth error:', err);
+        setError('Authentication error');
         router.replace('/login');
-        return;
+      } finally {
+        setAuthLoading(false);
       }
-      
-      // Only set user if session is valid
-      setUser(session.user);
-      setAuthLoading(false);
-      
-    } catch (error) {
-      console.error('Session check error:', error);
-      router.replace('/login');
-    }
-  };
+    };
 
-  checkAuth();
-}, [router]);
+    checkCustomAuth();
+  }, [router]);
 
-  // Fetch data
-  const fetchData = async () => {
+  // Data Fetching
+  const fetchData = useCallback(async () => {
+    if (!user || dataLoading) return;
+
     try {
+      setDataLoading(true);
       setError(null);
-      setLoading(true);
-      
+
       const [listingsRes, usersRes, allListingsRes] = await Promise.all([
-        fetch(`/api/admin/listings?status=${selectedStatus}&page=${currentPage}&limit=10`),
-        fetch('/api/admin/users'),
-        fetch('/api/listings?limit=20')
+        fetch(`/api/admin/listings?status=${selectedStatus}&page=${currentPage}&limit=10`, {
+          credentials: 'include'
+        }),
+        fetch('/api/admin/users', {
+          credentials: 'include'
+        }),
+        fetch('/api/listings?limit=20', {
+          credentials: 'include'
+        })
       ]);
 
-      if (!listingsRes.ok || !usersRes.ok || !allListingsRes.ok) {
-        throw new Error('Өгөгдөл ачааллахад алдаа гарлаа');
-      }
+      // Error handling for each response
+      if (!listingsRes.ok) throw new Error('Failed to load listings');
+      if (!usersRes.ok) throw new Error('Failed to load users');
+      if (!allListingsRes.ok) throw new Error('Failed to load all listings');
 
       const [listingsData, usersData, allListingsData] = await Promise.all([
         listingsRes.json(),
@@ -64,70 +80,90 @@ export default function AdminPage() {
         allListingsRes.json()
       ]);
 
-      setPendingListings(listingsData.listings);
-      setTotalPages(listingsData.totalPages);
-      setUsers(usersData);
-      setAllListings(allListingsData);
+      setPendingListings(listingsData.listings || []);
+      setTotalPages(listingsData.totalPages || 1);
+      setUsers(usersData || []);
+      setAllListings(allListingsData || []);
+
     } catch (err) {
+      console.error('Fetch error:', err);
       setError(err.message);
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
-  };
+  }, [user, selectedStatus, currentPage, dataLoading]);
 
   useEffect(() => {
-    if (user) fetchData();
-  }, [user, selectedStatus, currentPage]);
+    if (user && !authLoading) fetchData();
+  }, [user, selectedStatus, currentPage, authLoading, fetchData]);
 
-  // Listing actions
+  // Listing Actions
   const handleListingAction = async (id, status) => {
     try {
       const res = await fetch(`/api/admin/listings/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
+        credentials: 'include'
       });
 
-      if (!res.ok) throw new Error('Үйлдэл амжилтгүй боллоо');
-      
-      setPendingListings(prev => prev.filter(listing => listing._id !== id));
-      setAllListings(prev => prev.filter(listing => listing._id !== id));
+      if (!res.ok) throw new Error('Action failed');
+
+      setPendingListings(prev => prev.filter(l => l._id !== id));
+      setAllListings(prev => prev.map(l => 
+        l._id === id ? { ...l, status } : l
+      ));
+      alert('Action successful!');
     } catch (err) {
       alert(err.message);
     }
   };
 
-  // User deletion
+  // User Deletion
   const handleDeleteUser = async (userId) => {
-    if (!confirm('Хэрэглэгчийг устгахдаа итгэлтэй байна уу?')) return;
+    if (!confirm('Confirm user deletion?')) return;
     
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Устгах амжилтгүй');
-      
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!res.ok) throw new Error('Deletion failed');
+
       setUsers(prev => prev.filter(u => u._id !== userId));
       setAllListings(prev => prev.filter(l => l.owner._id !== userId));
+      alert('User deleted!');
     } catch (err) {
       alert(err.message);
     }
   };
 
-  // Listing deletion
- const handleDeleteListing = async (listingId) => {
-    if (!confirm('Зарыг устгахдаа итгэлтэй байна уу?')) return;
-    
+  // Listing Deletion
+  const handleDeleteListing = async (listingId) => {
+    if (!confirm('Confirm listing deletion?')) return;
+
     try {
-      const res = await fetch(`/api/admin/listings/${listingId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Устгах амжилтгүй');
-      
+      const res = await fetch(`/api/admin/listings/${listingId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!res.ok) throw new Error('Deletion failed');
+
       setAllListings(prev => prev.filter(l => l._id !== listingId));
+      setPendingListings(prev => prev.filter(l => l._id !== listingId));
+      alert('Listing deleted!');
     } catch (err) {
       alert(err.message);
     }
   };
 
-  if (authLoading || loading) return <div className="loading">Түр хүлээнэ үү...</div>;
-  if (!user) return null;
+  // Loading and Error States
+  if (authLoading) return <div className="loading">Checking authentication...</div>;
+  if (!user) return <div className="error">Not authorized</div>;
+  if (dataLoading) return <div className="loading">Loading data...</div>;
+  if (error) return <div className="error">Error: {error}</div>;
 
   return (
     <div className="admin-container">
@@ -135,35 +171,43 @@ export default function AdminPage() {
         <h1>Админ Хяналтын Самбар</h1>
         <nav>
           <Link href="/">Нүүр</Link>
-          <button onClick={() => router.push('/logout')}>Гарах</button>
+          <button onClick={async () => {
+            try {
+              await fetch('/api/auth/logout', { method: 'POST' }); 
+              setUser(null);
+              router.replace('/login');
+            } catch (err) {
+              console.error('Logout error:', err);
+              alert('Гарахад алдаа гарлаа.');
+            }
+          }}>Гарах</button>
         </nav>
       </header>
 
       <div className="admin-content">
-        {/* Pending Listings Section */}
         <section className="admin-section">
           <h2>Хүлээгдэж буй зар</h2>
           <div className="status-filter">
-            <button 
+            <button
               className={selectedStatus === 'pending' ? 'active' : ''}
-              onClick={() => setSelectedStatus('pending')}
+              onClick={() => { setCurrentPage(1); setSelectedStatus('pending'); }}
             >
               Хүлээгдэж буй
             </button>
             <button
               className={selectedStatus === 'approved' ? 'active' : ''}
-              onClick={() => setSelectedStatus('approved')}
+              onClick={() => { setCurrentPage(1); setSelectedStatus('approved'); }}
             >
               Зөвшөөрөгдсөн
             </button>
             <button
               className={selectedStatus === 'declined' ? 'active' : ''}
-              onClick={() => setSelectedStatus('declined')}
+              onClick={() => { setCurrentPage(1); setSelectedStatus('declined'); }}
             >
               Татгалзсан
             </button>
           </div>
-          
+
           {pendingListings.length === 0 ? (
             <p>Ямар ч зар олдсонгүй</p>
           ) : (
@@ -171,14 +215,16 @@ export default function AdminPage() {
               <div key={listing._id} className="listing-card">
                 <div className="listing-info">
                   <h3>{listing.title}</h3>
-                  <p>Үнэ: {listing.price.toLocaleString()}₮</p>
-                  <p>Явсан км: {listing.km.toLocaleString()}</p>
+                  <p>Үнэ: {listing.price?.toLocaleString()}₮</p>
+                  <p>Явсан км: {listing.km?.toLocaleString()}</p>
                   <p>Төрөл: {listing.type}</p>
+                  <p>Статус: {listing.status}</p>
+                  <p>Эзэмшигч: {listing.owner?.email || 'Мэдээлэлгүй'}</p>
                 </div>
                 <div className="listing-actions">
                   {listing.status === 'pending' && (
                     <>
-                      <button 
+                      <button
                         className="approve-btn"
                         onClick={() => handleListingAction(listing._id, 'approved')}
                       >
@@ -202,6 +248,23 @@ export default function AdminPage() {
               </div>
             ))
           )}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Өмнөх
+              </button>
+              <span>Хуудас {currentPage} / {totalPages}</span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Дараах
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Users Section */}
@@ -210,16 +273,16 @@ export default function AdminPage() {
           {users.length === 0 ? (
             <p>Хэрэглэгч олдсонгүй</p>
           ) : (
-            users.map(user => (
-              <div key={user._id} className="user-card">
+            users.map(userItem => (
+              <div key={userItem._id} className="user-card">
                 <div className="user-info">
-                  <h3>{user.email}</h3>
-                  <p>Эрх: {user.role}</p>
-                  <p>Бүртгүүлсэн: {new Date(user.createdAt).toLocaleDateString()}</p>
+                  <h3>{userItem.email}</h3>
+                  <p>Эрх: {userItem.role}</p>
+                  <p>Бүртгүүлсэн: {new Date(userItem.createdAt).toLocaleDateString()}</p>
                 </div>
                 <button
                   className="delete-btn"
-                  onClick={() => handleDeleteUser(user._id)}
+                  onClick={() => handleDeleteUser(userItem._id)}
                 >
                   Устгах
                 </button>
@@ -239,8 +302,8 @@ export default function AdminPage() {
                 <div className="listing-info">
                   <h3>{listing.title}</h3>
                   <p>Статус: {listing.status}</p>
-                  <p>Үнэ: {listing.price.toLocaleString()}₮</p>
-                  <p>Эзэмшигч: {listing.owner.email}</p>
+                  <p>Үнэ: {listing.price?.toLocaleString()}₮</p>
+                  <p>Эзэмшигч: {listing.owner?.email || 'Мэдээлэлгүй'}</p>
                 </div>
                 <div className="listing-actions">
                   <button

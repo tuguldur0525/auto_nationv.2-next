@@ -3,7 +3,7 @@ import React from "react"
 
 export default function Listings({ ads = [] }) {
   if (!ads.length) {
-    return <div>Одоогоор зар байхгүй байна.</div>
+    return <div style={{color: 'blue', fontSize: '18px', padding: '30px', textAlign: 'center'}}>Одоогоор зар байхгүй байна.</div>
   }
 
   return (
