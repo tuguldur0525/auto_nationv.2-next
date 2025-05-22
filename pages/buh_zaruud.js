@@ -7,7 +7,6 @@ import SearchBar from "../components/searchbar";
 import Listings from "../components/listings"; // Correct import for Listings component
 import FilterSection from "../components/filterSection";
 // No need for mongoose import in frontend components
-// import mongoose from "mongoose";
 
 export default function BuhZaruud() {
   const [selectedLocation, setSelectedLocation] = useState("");
