@@ -208,6 +208,7 @@ export default function SellPage() {
                 <p>Зарыг шалгаад нийтлэгдэнэ</p>
               </div>
             </div>
+            <i class="fa fa-angle-down fa-4x" aria-hidden="true"></i>
           </div>
         </div>
       </div>
