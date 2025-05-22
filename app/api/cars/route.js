@@ -31,6 +31,8 @@ export async function POST(req) {
 
   // FormData-аас талбаруудыг авах
   const title = formData.get("title")
+  const brand = formData.get("brand")
+  const model = formData.get("model")
   const km = Number(formData.get("km"))
   const fuel = formData.get("fuel")
   const type = formData.get("type")
@@ -68,6 +70,8 @@ export async function POST(req) {
       title,
       images,
       km,
+      brand,
+      model,
       fuel,
       type,
       price,

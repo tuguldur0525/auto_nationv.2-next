@@ -10,6 +10,8 @@ export default function SellPage() {
   const [dragging, setDragging] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const fileInputRef = useRef()
+  const [brand, setBrand] = useState("")
+  const [model, setModel] = useState("")
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -81,6 +83,8 @@ export default function SellPage() {
     })
 
     formData.append("title", e.target.title.value)
+    formData.append("brand", e.target.brand.value)
+    formData.append("model", e.target.model.value)
     formData.append("km", e.target.km.value)
     formData.append("fuel", e.target.fuel.value)
     formData.append("type", e.target.type.value)
@@ -93,6 +97,7 @@ export default function SellPage() {
     formData.append("phone", e.target.phone.value)
     formData.append("specifications", JSON.stringify(specifications))
     formData.append("owner", currentUser?._id)
+    console.log("formData", formData)
 
     try {
       const response = await fetch("/api/cars", {
@@ -101,7 +106,12 @@ export default function SellPage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        let errorData
+        try {
+          errorData = await response.json()
+        } catch {
+          errorData = { error: "Unknown error" }
+        }
         console.error("BACKEND ERROR:", errorData)
         throw new Error(errorData.error || "Submission failed")
       }
@@ -122,6 +132,8 @@ export default function SellPage() {
   const hideMenu = () => {
     document.getElementById("navLinks").style.right = "-200px"
   }
+
+  // console.log("moder, brand, model", e.target.model.value, e.target.brand.value)
 
   return (
     <>
@@ -273,6 +285,31 @@ export default function SellPage() {
                   <option value="Дизель">Дизель</option>
                   <option value="Цахилгаан">Цахилгаан</option>
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="brand">Брэнд</label>
+                <input
+                  type="text"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  id="brand"
+                  name="brand"
+                  required
+                  placeholder="Жишээ нь: Toyota"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="model">Загвар</label>
+                <input
+                  type="text"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  id="model"
+                  name="model"
+                  required
+                  placeholder="Жишээ нь: Prius"
+                />
               </div>
 
               <div className="form-group">

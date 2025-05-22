@@ -4,6 +4,7 @@ import SearchBar from "../components/searchbar"
 import Footer from "../components/footer"
 import Listings from "../components/listings"
 import LocationSelector from "../components/locationselector"
+import Chatbot from "../components/Chatbot"
 
 export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("")
@@ -111,6 +112,7 @@ export default function Home() {
       <SearchBar onSearch={setSearchParams} />
       <Listings location={selectedLocation} searchParams={searchParams} />
       <Footer />
+      <Chatbot />
     </>
   )
 }
