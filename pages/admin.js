@@ -438,39 +438,6 @@ export default function AdminPage() {
                         </div>
                     )}
                 </section>
-
-                {/* All Listings Section */}
-                <section className="admin-section">
-                    <h2>Бүх зар</h2>
-                    {allListings.length === 0 ? (
-                        <p className="no-data">Ямар ч зар олдсонгүй</p>
-                    ) : (
-                        <div className="listings-grid">
-                            {allListings.map(listing => (
-                                <div key={listing._id} className="listing-card">
-                                    {listing.images && listing.images.length > 0 && (
-                                        <img src={listing.images[0]} alt={listing.title} className="listing-image" />
-                                    )}
-                                    <div className="listing-info">
-                                        <h3>{listing.title}</h3>
-                                        <p>Статус: <span className={`status-badge status-${listing.status}`}>{listing.status}</span></p>
-                                        <p>Үнэ: {listing.price?.toLocaleString()}₮</p>
-                                        <p>Эзэмшигч: {listing.owner?.email || 'Мэдээлэлгүй'}</p>
-                                    </div>
-                                    <div className="listing-actions">
-                                        <button
-                                            className="action-btn delete-btn"
-                                            onClick={() => handleDeleteListing(listing._id)}
-                                            disabled={dataLoading}
-                                        >
-                                            Устгах
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </section>
             </main>
         </div>
     );
