@@ -1,60 +1,71 @@
-import { useEffect, useState } from "react"
-import Head from "next/head"
-import SearchBar from "../components/searchbar"
-import Footer from "../components/footer"
-import Listings from "../components/listings"
-import LocationSelector from "../components/locationselector"
-import Chatbot from "../components/Chatbot"
+import { useEffect, useState } from "react";
+import Head from "next/head";
+import SearchBar from "../components/searchbar";
+import Footer from "../components/footer";
+import Listings from "../components/listings";
+import LocationSelector from "../components/locationselector";
+import Header from "../components/header"; // Assuming you have a Header component
+import Chatbot from "../components/Chatbot"; // Ensure Chatbot component is imported
 
 export default function Home() {
-  const [selectedLocation, setSelectedLocation] = useState("")
-  const [searchParams, setSearchParams] = useState(null)
-  const [currentUser, setCurrentUser] = useState(null)
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [searchParams, setSearchParams] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    const navLinks = document.getElementById("navLinks")
-    window.showMenu = function () {
-      navLinks.style.right = "0"
-    }
-    window.hideMenu = function () {
-      navLinks.style.right = "-200px"
+    // Menu toggle functions
+    const navLinks = document.getElementById("navLinks");
+    if (navLinks) { // Added check
+      window.showMenu = function () {
+        navLinks.style.right = "0";
+      };
+      window.hideMenu = function () {
+        navLinks.style.right = "-200px";
+      };
     }
 
-    const yearDropdown = document.getElementById("yearDropdown")
+    // Populate year dropdown (if 'yearDropdown' element exists)
+    const yearDropdown = document.getElementById("yearDropdown");
     if (yearDropdown) {
       for (let i = new Date().getFullYear(); i >= 2000; i--) {
-        let option = document.createElement("option")
-        option.value = i
-        option.textContent = i
-        yearDropdown.appendChild(option)
+        let option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        yearDropdown.appendChild(option);
       }
     }
 
-    const zarNemehLink = document.querySelector('a[href="zar_nemeh.html"]')
+    // "Зар нэмэх" (Add Listing) link authentication check
+    // Ensure this link actually points to /sell not zar_nemeh.html
+    // Use proper Next.js Link component or router.push for navigation in a real app
+    const zarNemehLink = document.querySelector('a[href="/sell"]'); // Changed to /sell
     if (zarNemehLink) {
       zarNemehLink.addEventListener("click", function (e) {
-        const isAuthenticated = localStorage.getItem("isAuthenticated")
+        const isAuthenticated = localStorage.getItem("isAuthenticated");
         if (!isAuthenticated) {
-          e.preventDefault()
-          alert("Та эхлээд бүртгүүлнэ үү.")
-          window.location.href = "nevtreh.html"
+          e.preventDefault();
+          alert("Та эхлээд бүртгүүлнэ үү.");
+          window.location.href = "/login"; // Changed to Next.js route
         }
-      })
+      });
     }
 
+    // Session timeout for isAuthenticated
     const interval = setInterval(() => {
-      localStorage.removeItem("isAuthenticated")
-    }, 1800000)
+      localStorage.removeItem("isAuthenticated");
+    }, 1800000); // 30 minutes
 
+    // Load currentUser from localStorage
     if (typeof window !== "undefined") {
-      const user = localStorage.getItem("currentUser")
+      const user = localStorage.getItem("currentUser");
       if (user) {
-        setCurrentUser(JSON.parse(user))
+        setCurrentUser(JSON.parse(user));
       }
     }
 
-    return () => clearInterval(interval)
-  }, [])
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -70,6 +81,7 @@ export default function Home() {
           rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         />
+
       </Head>
 
       <section className="header">
@@ -108,11 +120,14 @@ export default function Home() {
           <i className="fa fa-bars" onClick={() => showMenu()}></i>
         </nav>
       </section>
+
       <LocationSelector onLocationSelect={setSelectedLocation} />
       <SearchBar onSearch={setSearchParams} />
+
       <Listings location={selectedLocation} searchParams={searchParams} />
+
       <Footer />
-      <Chatbot />
+      <Chatbot /> 
     </>
-  )
+  );
 }

@@ -1,46 +1,46 @@
-import { useEffect } from "react"
-import Head from "next/head"
-import SearchBar from "../components/searchbar"
-import Footer from "../components/footer"
+import { useEffect } from "react";
+import Head from "next/head";
+import SearchBar from "../components/searchbar";
+import Footer from "../components/footer";
 
 export default function Home() {
   useEffect(() => {
-    const navLinks = document.getElementById("navLinks")
+    const navLinks = document.getElementById("navLinks");
     window.showMenu = function () {
-      navLinks.style.right = "0"
-    }
+      navLinks.style.right = "0";
+    };
     window.hideMenu = function () {
-      navLinks.style.right = "-200px"
-    }
+      navLinks.style.right = "-200px";
+    };
 
-    const yearDropdown = document.getElementById("yearDropdown")
+    const yearDropdown = document.getElementById("yearDropdown");
     if (yearDropdown) {
       for (let i = new Date().getFullYear(); i >= 2000; i--) {
-        let option = document.createElement("option")
-        option.value = i
-        option.textContent = i
-        yearDropdown.appendChild(option)
+        let option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        yearDropdown.appendChild(option);
       }
     }
 
-    const zarNemehLink = document.querySelector('a[href="zar_nemeh.html"]')
+    const zarNemehLink = document.querySelector('a[href="zar_nemeh.html"]');
     if (zarNemehLink) {
       zarNemehLink.addEventListener("click", function (e) {
-        const isAuthenticated = localStorage.getItem("isAuthenticated")
+        const isAuthenticated = localStorage.getItem("isAuthenticated");
         if (!isAuthenticated) {
-          e.preventDefault()
-          alert("Та эхлээд бүртгүүлнэ үү.")
-          window.location.href = "nevtreh.html"
+          e.preventDefault();
+          alert("Та эхлээд бүртгүүлнэ үү.");
+          window.location.href = "nevtreh.html";
         }
-      })
+      });
     }
 
     const interval = setInterval(() => {
-      localStorage.removeItem("isAuthenticated")
-    }, 1800000)
+      localStorage.removeItem("isAuthenticated");
+    }, 1800000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -70,7 +70,7 @@ export default function Home() {
                 <a href="/">Нүүр</a>
               </li>
               <li>
-                <a href="/buh_zaruud">Бүх зарууд f</a>
+                <a href="/buh_zaruud">Бүх зарууд</a>
               </li>
               <li>
                 <a href="/zar_nemeh">Зар нэмэх</a>
@@ -120,8 +120,9 @@ export default function Home() {
         </div>
       </section>
 
-      {<SearchBar />}
-      {<Footer />}
+      {<SearchBar /> }
+      {<Footer/>}
+    
     </>
-  )
-}
+  );
+  }
