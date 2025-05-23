@@ -1,9 +1,6 @@
-// pages/admin.js
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-// Assuming your admin.css is in public/. This import should typically work
-// if you have 'css-loader' and 'postcss-loader' configured in next.config.js for CSS.
 import '../public/admin.css';
 
 export default function AdminPage() {

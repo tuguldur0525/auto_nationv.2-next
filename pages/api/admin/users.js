@@ -1,5 +1,3 @@
-// pages/api/admin/users.js
-// REMOVE: import { getSession } from 'next-auth/react'; // No longer needed
 import User from '../../../models/User';
 import Vehicle from '../../../models/Vehicle'; // Assuming 'Vehicle' is used for listings
 import dbConnect from '../../../lib/dbConnect';
@@ -28,11 +26,6 @@ export default async function handler(req, res) {
       res.status(200).json(users);
     } else if (req.method === 'DELETE') {
       const { id } = req.query;
-
-      // Optional: Prevent deleting the currently logged-in admin user
-      // if (req.user && req.user._id.toString() === id) {
-      //   return res.status(400).json({ success: false, message: 'Cannot delete yourself.' });
-      // }
 
       // Check if the user to be deleted exists
       const userToDelete = await User.findById(id);

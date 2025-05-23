@@ -4,8 +4,8 @@ import SearchBar from "../components/searchbar";
 import Footer from "../components/footer";
 import Listings from "../components/listings";
 import LocationSelector from "../components/locationselector";
-import Header from "../components/header"; // Assuming you have a Header component
-import Chatbot from "../components/Chatbot"; // Ensure Chatbot component is imported
+import Header from "../components/header";
+import Chatbot from "../components/Chatbot";
 
 export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState("");
