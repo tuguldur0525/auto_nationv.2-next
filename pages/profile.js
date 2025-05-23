@@ -101,12 +101,6 @@ export default function ProfilePage() {
                 src={userData.avatar || "/images/3_avatar-512.webp"}
                 alt="Profile"
               />
-              <button
-                className="edit-avatar-btn"
-                onClick={() => setActiveTab("settings")}
-              >
-                <i className="fa fa-camera"></i>
-              </button>
             </div>
             <div className="profile-info">
               <h1>{firstName || "Хэрэглэгч"}</h1>
@@ -114,12 +108,6 @@ export default function ProfilePage() {
                 <i className="fa fa-map-marker"></i>{" "}
                 {userData.address || "Улаанбаатар, Монгол"}
               </p>
-              <div className="profile-stats">
-                <div className="stat-item">
-                  <span className="stat-number">5</span>
-                  <span className="stat-label">Зар</span>
-                </div>
-              </div>
             </div>
             <button
               className="edit-profile-btn"
@@ -178,9 +166,6 @@ export default function ProfilePage() {
                   </li>
                   <li>
                     <strong>Утас:</strong> {userData.phone || "-"}
-                  </li>
-                  <li>
-                    <strong>Байршил:</strong> {userData.address || "-"}
                   </li>
                 </ul>
               </div>
@@ -279,26 +264,6 @@ export default function ProfilePage() {
                       value={userData.phone || ""}
                       onChange={(e) =>
                         setUserData({ ...userData, phone: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label>
-                    Байршил:
-                    <input
-                      type="text"
-                      value={userData.address || ""}
-                      onChange={(e) =>
-                        setUserData({ ...userData, address: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label>
-                    Avatar URL:
-                    <input
-                      type="url"
-                      value={userData.avatar || ""}
-                      onChange={(e) =>
-                        setUserData({ ...userData, avatar: e.target.value })
                       }
                     />
                   </label>
