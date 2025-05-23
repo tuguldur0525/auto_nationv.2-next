@@ -116,16 +116,8 @@ export default function ProfilePage() {
               </p>
               <div className="profile-stats">
                 <div className="stat-item">
-                  <span className="stat-number">12</span>
-                  <span className="stat-label">Хадгалсан</span>
-                </div>
-                <div className="stat-item">
                   <span className="stat-number">5</span>
                   <span className="stat-label">Зар</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-number">3</span>
-                  <span className="stat-label">Хэлэлцүүлэг</span>
                 </div>
               </div>
             </div>
@@ -146,14 +138,6 @@ export default function ProfilePage() {
               }`}
             >
               Хувийн мэдээлэл
-            </button>
-            <button
-              onClick={() => setActiveTab("saved-cars")}
-              className={`tab-btn ${
-                activeTab === "saved-cars" ? "active" : ""
-              }`}
-            >
-              Хадгалсан
             </button>
             <button
               onClick={() => setActiveTab("my-listings")}
@@ -199,27 +183,6 @@ export default function ProfilePage() {
                     <strong>Байршил:</strong> {userData.address || "-"}
                   </li>
                 </ul>
-              </div>
-            )}
-
-            {/* SAVED CARS */}
-            {activeTab === "saved-cars" && (
-              <div className="tab-content active">
-                <h2>
-                  <i className="fa fa-heart"></i> Хадгалсан автомашинууд
-                </h2>
-                <div className="car-grid">
-                  <div className="car-card">
-                    <img src="/images/car1.jpg" alt="Car 1" />
-                    <h3>Toyota Prius 30</h3>
-                    <p>2013 | 180,000 км | 18 сая ₮</p>
-                  </div>
-                  <div className="car-card">
-                    <img src="/images/car2.jpg" alt="Car 2" />
-                    <h3>Honda Fit</h3>
-                    <p>2012 | 150,000 км | 14 сая ₮</p>
-                  </div>
-                </div>
               </div>
             )}
 
