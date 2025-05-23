@@ -1,49 +1,51 @@
-import dbConnect from "../../lib/dbConnect"
-const Vehicle = require("../../models/Vehicle")
+// pages/api/chat.js - Modified for News
+import dbConnect from "../../lib/dbConnect";
+// const Vehicle = require("../../models/Vehicle"); // REMOVE this line
+const NewsArticle = require("../../models/NewsArticle"); // ADD your NewsArticle model
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" })
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { message } = req.body
+  const { message } = req.body;
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+  await dbConnect();
 
-  await dbConnect()
+  // Fetch distinct news categories/topics from the database
+  // Adjust this based on how your news articles are categorized
+  const categories = await NewsArticle.distinct("category", { status: "published" }); // Assuming a 'status' field for news
+  const lowerMsg = message.toLowerCase();
 
-  // Fetch distinct brands and models from the database
-  const brands = await Vehicle.distinct("brand", { status: "approved" })
-  const models = await Vehicle.distinct("model", { status: "approved" })
+  let newsInfo = "";
 
-  let carInfo = ""
+  // Logic to find news based on user query (e.g., categories, keywords)
+  const foundCategory = categories.find((cat) => lowerMsg.includes(cat.toLowerCase()));
 
-  // Хэрэглэгчийн асуултад брэнд байгаа эсэхийг шалгах
-  const lowerMsg = message.toLowerCase()
-  const foundBrand = brands.find((b) => lowerMsg.includes(b.toLowerCase()))
-  const foundModel = models.find((m) => lowerMsg.includes(m.toLowerCase()))
-  if (foundBrand || foundModel) {
-    // Статус нь approved заруудыг л харуулах
-    const cars = await Vehicle.find({ status: "approved" }).limit(3)
-    console.log("Found brand:", foundBrand)
-    console.log("Cars from DB:", cars)
-    if (cars.length > 0) {
-      carInfo =
-        `Манай сайтад дараах ${(
-          foundBrand || foundModel
-        ).toUpperCase()} машинууд байна:\n` +
-        cars
-          .map(
-            (car) =>
-              `- ${car.title}, үнэ: ${car.price}, байршил: ${car.location}`
-          )
-          .join("\n")
+  if (foundCategory) {
+    const articles = await NewsArticle.find({ category: foundCategory, status: "published" }).limit(3);
+    if (articles.length > 0) {
+      newsInfo = `Манай сайтад ${foundCategory.toUpperCase()} ангилалд дараах мэдээллүүд байна:\n` +
+        articles.map(
+          (article) => `- ${article.title}, огноо: ${new Date(article.publishedDate).toLocaleDateString('mn-MN')}` // Assuming 'publishedDate' field
+        ).join("\n");
     } else {
-      carInfo = `${(
-        foundBrand || foundModel
-      ).toUpperCase()} машин одоогоор байхгүй байна.`
+      newsInfo = `${foundCategory.toUpperCase()} ангилалд одоогоор мэдээ байхгүй байна.`;
     }
+  } else if (lowerMsg.includes("сүүлийн үеийн мэдээ") || lowerMsg.includes("хамгийн сүүлийн мэдээ")) {
+      // Example: Handle "latest news" query
+      const latestArticles = await NewsArticle.find({ status: "published" }).sort({ publishedDate: -1 }).limit(3);
+      if (latestArticles.length > 0) {
+          newsInfo = "Сүүлийн үеийн мэдээллүүд:\n" +
+              latestArticles.map(
+                  (article) => `- ${article.title}, огноо: ${new Date(article.publishedDate).toLocaleDateString('mn-MN')}`
+              ).join("\n");
+      } else {
+          newsInfo = "Одоогоор мэдээ олдсонгүй.";
+      }
   }
+  // You can add more specific intent detection here, e.g., for "summarize [article title]"
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -53,29 +55,29 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
+        model: "gpt-4o-mini", // Consider using gpt-4o-mini for better performance and cost
         messages: [
           {
             role: "system",
-            content: `\nЧи бол Монгол хэлээр харилцдаг AutoNation сайтын туслах чатбот. Манай сайт автомашины зар, худалдаа, байршил, хэрэглэгчийн профайл, зар нэmэх үйлчилгээтэй.\n${carInfo}`,
+            content: `\nЧи бол Монгол хэлээр харилцдаг манай мэдээллийн сайтын туслах чатбот. Чи хэрэглэгчдэд мэдээ, мэдээлэл хайж олох, ерөнхий асуултад хариулах үүрэгтэй. ${newsInfo}`, // Updated system prompt
           },
           { role: "user", content: message },
         ],
         max_tokens: 200,
       }),
-    })
+    });
 
     if (!response.ok) {
-      const error = await response.text()
-      return res.status(500).json({ reply: "OpenAI API error: " + error })
+      const error = await response.text();
+      return res.status(500).json({ reply: "OpenAI API error: " + error });
     }
 
-    const data = await response.json()
+    const data = await response.json();
     const aiMessage =
-      data.choices?.[0]?.message?.content || "AI-с хариу ирсэнгүй."
+      data.choices?.[0]?.message?.content || "AI-с хариу ирсэнгүй.";
 
-    res.status(200).json({ reply: aiMessage })
+    res.status(200).json({ reply: aiMessage });
   } catch (err) {
-    res.status(500).json({ reply: "Серверийн алдаа: " + err.message })
+    res.status(500).json({ reply: "Серверийн алдаа: " + err.message });
   }
 }
