@@ -1,86 +1,110 @@
-import { useState, useEffect } from "react"
-import Head from "next/head"
-import Link from "next/link"
-import "../public/style.css"
-import "../public/login.css"
-import Footer from "components/footer"
+import { useState, useEffect } from "react";
+import Head from "next/head";
+import Link from "next/link";
+import "../public/style.css";
+import "../public/login.css";
+import Footer from "components/footer";
 
 export default function SignPage() {
-  const [activeForm, setActiveForm] = useState("login")
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [showPassword, setShowPassword] = useState(false)
-  const [currentUser, setCurrentUser] = useState(null)
+  const [activeForm, setActiveForm] = useState("login");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
+    // This effect runs only once when the component mounts on the client-side
+    // to check for an existing user in localStorage.
     if (typeof window !== "undefined") {
-      const user = localStorage.getItem("currentUser")
+      const user = localStorage.getItem("currentUser");
       if (user) {
-        setCurrentUser(JSON.parse(user))
+        try {
+          setCurrentUser(JSON.parse(user));
+        } catch (e) {
+          console.error("Failed to parse currentUser from localStorage", e);
+          localStorage.removeItem("currentUser"); // Clear invalid data
+        }
       }
     }
-  }, [])
+  }, []);
 
   const showForm = (formType) => {
-    setActiveForm(formType)
-    setErrors({})
-  }
+    setActiveForm(formType);
+    setErrors({}); // Clear errors when switching forms
+  };
 
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen)
-  }
+    setMenuOpen(!menuOpen);
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   const validateSignup = (formData) => {
-    const newErrors = {}
-    if (!formData.get("name")) newErrors.name = "Нэрээ оруулна уу"
-    if (!formData.get("email")) {
-      newErrors.email = "Имэйл хаяг оруулна уу"
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.get("email"))) {
-      newErrors.email = "Хүчинтэй имэйл оруулна уу"
+    const newErrors = {};
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const phone = formData.get("phone");
+    const password = formData.get("password");
+    const confirmPassword = formData.get("confirmPassword");
+
+    if (!name || name.trim() === "") {
+      newErrors.name = "Нэрээ оруулна уу";
     }
-    if (!formData.get("phone")) {
-      newErrors.phone = "Утасны дугаар оруулна уу"
-    } else if (!/^\d{8}$/.test(formData.get("phone"))) {
-      newErrors.phone = "8 оронтой тоо оруулна уу"
+    if (!email || email.trim() === "") {
+      newErrors.email = "Имэйл хаяг оруулна уу";
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      newErrors.email = "Хүчинтэй имэйл оруулна уу";
     }
-    if (!formData.get("password")) {
-      newErrors.password = "Нууц үг оруулна уу"
-    } else if (formData.get("password").length < 6) {
-      newErrors.password = "Хамгийн багадаа 6 тэмдэгт"
+    if (!phone || phone.trim() === "") {
+      newErrors.phone = "Утасны дугаар оруулна уу";
+    } else if (!/^\d{8}$/.test(phone)) {
+      newErrors.phone = "8 оронтой тоо оруулна уу";
     }
-    if (formData.get("password") !== formData.get("confirmPassword")) {
-      newErrors.confirmPassword = "Нууц үг таарахгүй байна"
+    if (!password || password.trim() === "") {
+      newErrors.password = "Нууц үг оруулна уу";
+    } else if (password.length < 6) {
+      newErrors.password = "Нууц үг хамгийн багадаа 6 тэмдэгтээс тогтоно";
     }
-    return newErrors
-  }
+    if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Нууц үг таарахгүй байна";
+    }
+    return newErrors;
+  };
 
   const validateLogin = (formData) => {
-    const newErrors = {}
-    if (!formData.get("emailPhone"))
-      newErrors.emailPhone = "Имэйл эсвэл утасны дугаар оруулна уу"
-    if (!formData.get("password")) newErrors.password = "Нууц үг оруулна уу"
-    return newErrors
-  }
+    const newErrors = {};
+    const emailPhone = formData.get("emailPhone");
+    const password = formData.get("password");
+
+    if (!emailPhone || emailPhone.trim() === "") {
+      newErrors.emailPhone = "Имэйл эсвэл утасны дугаар оруулна уу";
+    }
+    if (!password || password.trim() === "") {
+      newErrors.password = "Нууц үг оруулна уу";
+    }
+    return newErrors;
+  };
 
   const handleSignup = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    const formData = new FormData(e.target)
-    const validationErrors = validateSignup(formData)
+    e.preventDefault();
+    setLoading(true);
+    setErrors({}); // Clear previous errors
+
+    const formData = new FormData(e.target);
+    const validationErrors = validateSignup(formData);
 
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
-      setLoading(false)
-      return
+      setErrors(validationErrors);
+      setLoading(false);
+      return;
     }
 
     try {
-      const response = await fetch("/api/auth/register", {
+      // Step 1: Register the user
+      const registerResponse = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,54 +114,83 @@ export default function SignPage() {
           email: formData.get("email"),
           phone: formData.get("phone"),
           password: formData.get("password"),
-          role: "user",
+          role: "user", // Default role for new signups
         }),
-      })
+      });
 
-      const data = await response.json()
+      const registerData = await registerResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Бүртгэл амжилтгүй боллоо")
+      if (!registerResponse.ok) {
+        // Handle registration specific errors
+        if (registerData.message === "User already exists") {
+          setErrors({ general: "Энэ имэйл эсвэл утасны дугаар бүртгэлтэй байна. Нэвтэрнэ үү." });
+        } else {
+          setErrors({ general: registerData.message || "Бүртгэл амжилтгүй боллоо. Дахин оролдоно уу." });
+        }
+        setLoading(false);
+        return; // Stop execution if registration fails
       }
 
+      // Step 2: Automatically log in the user after successful registration
       const loginResponse = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: formData.get("email"),
+          emailPhone: formData.get("email"), // Use email for login after signup
           password: formData.get("password"),
         }),
-      })
+      });
 
-      const loginData = await loginResponse.json()
+      const loginData = await loginResponse.json();
 
       if (!loginResponse.ok) {
-        throw new Error(loginData.message || "Нэвтрэхэд алдаа гарлаа")
+        // This case should ideally not happen if registration was successful
+        // and credentials are correct, but good to handle defensively.
+        setErrors({ general: loginData.message || "Бүртгэл амжилттай болсон ч нэвтрэхэд алдаа гарлаа. Та одоо нэвтэрч ороно уу." });
+        setLoading(false);
+        // Optionally, redirect to login page here if auto-login fails
+        // showForm("login");
+        return;
       }
 
-      // Redirect to profile
-      window.location.href = "/profile"
+      // Step 3: Store user data in localStorage and redirect
+      localStorage.setItem("currentUser", JSON.stringify(loginData.data));
+      setCurrentUser(loginData.data); // Update state
+
+      // Redirect based on user role (if your backend returns it)
+      switch (loginData.data.role) {
+        case "admin":
+          window.location.href = "/admin";
+          break;
+        case "dealer":
+          window.location.href = "/profile"; // Or a specific dealer profile page
+          break;
+        default:
+          window.location.href = "/profile"; // Default for 'user' role
+      }
+
     } catch (error) {
-      setErrors({ general: error.message })
+      console.error("Signup/Login Error:", error);
+      setErrors({ general: "Сүлжээний алдаа гарлаа. Та интернэт холболтоо шалгана уу." });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setErrors({})
+    e.preventDefault();
+    setLoading(true);
+    setErrors({}); // Clear previous errors
 
-    const formData = new FormData(e.target)
-    const validationErrors = validateLogin(formData)
+    const formData = new FormData(e.target);
+    const validationErrors = validateLogin(formData);
 
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
-      setLoading(false)
-      return
+      setErrors(validationErrors);
+      setLoading(false);
+      return;
     }
 
     try {
@@ -148,41 +201,46 @@ export default function SignPage() {
           emailPhone: formData.get("emailPhone"),
           password: formData.get("password"),
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Нэвтрэхэд алдаа гарлаа")
+        // Handle specific login errors from the backend
+        if (response.status === 401) { // Unauthorized (e.g., wrong password)
+          setErrors({ general: "Имэйл/утасны дугаар эсвэл нууц үг буруу байна." });
+        } else if (response.status === 404) { // Not Found (e.g., user doesn't exist)
+          setErrors({ general: "Бүртгэлгүй хэрэглэгч байна. Бүртгүүлнэ үү." });
+        } else {
+          setErrors({ general: data.message || "Нэвтрэхэд алдаа гарлаа. Дахин оролдоно уу." });
+        }
+        setLoading(false);
+        return;
       }
-      // Хэрэглэгчийн мэдээлэл localStorage-д хадгалах
-      localStorage.setItem("currentUser", JSON.stringify(data.data)) // Энэ мөрийг нэмнэ
 
-      // Redirect хийх
-      window.location.href = "/profile"
+      // Store user data in localStorage
+      localStorage.setItem("currentUser", JSON.stringify(data.data));
+      setCurrentUser(data.data); // Update state
 
       // Redirect based on user role
       switch (data.data.role) {
         case "admin":
-          window.location.href = "/admin"
-          break
+          window.location.href = "/admin";
+          break;
         case "dealer":
-          window.location.href = "/profile"
-          break
+          window.location.href = "/profile"; // Or a specific dealer profile page
+          break;
         default:
-          window.location.href = "/profile"
+          window.location.href = "/profile"; // Default for 'user' role
       }
     } catch (error) {
-      setErrors({ general: error.message })
+      console.error("Login Error:", error);
+      setErrors({ general: "Сүлжээний алдаа гарлаа. Та интернэт холболтоо шалгана уу." });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-  if (typeof window !== "undefined" && !localStorage.getItem("users")) {
-    localStorage.setItem("users", JSON.stringify([]))
-  }
-
+  };
+  
   return (
     <>
       <Head>
@@ -223,16 +281,15 @@ export default function SignPage() {
               </li>
               {currentUser ? (
                 <li>
-                  <a href="/profile" className="nevtreh-btn">
-                    <i className="fa fa-user-circle"></i>{" "}
-                    <Link href="/profile">Профайл</Link>
-                  </a>
+                  <Link href="/profile" className="nevtreh-btn">
+                    <i className="fa fa-user-circle"></i> Профайл
+                  </Link>
                 </li>
               ) : (
                 <li>
-                  <a href="/sign" className="nevtreh-btn">
+                  <Link href="/sign" className="nevtreh-btn">
                     Нэвтрэх
-                  </a>
+                  </Link>
                 </li>
               )}
             </ul>
@@ -303,8 +360,7 @@ export default function SignPage() {
                 <button type="submit" className="auth-btn" disabled={loading}>
                   {loading ? (
                     <>
-                      <i className="fas fa-spinner fa-spin"></i> Нэвтэрч
-                      байна...
+                      <i className="fas fa-spinner fa-spin"></i> Нэвтэрч байна...
                     </>
                   ) : (
                     <>
@@ -411,8 +467,7 @@ export default function SignPage() {
                 <button type="submit" className="auth-btn" disabled={loading}>
                   {loading ? (
                     <>
-                      <i className="fas fa-spinner fa-spin"></i> Бүртгүүлж
-                      байна...
+                      <i className="fas fa-spinner fa-spin"></i> Бүртгүүлж байна...
                     </>
                   ) : (
                     <>
@@ -435,5 +490,5 @@ export default function SignPage() {
 
       <Footer />
     </>
-  )
+  );
 }
