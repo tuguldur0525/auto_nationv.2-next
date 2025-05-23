@@ -668,7 +668,7 @@ nav .fa {
 /*---------footer-------*/
 
 .footer {
-    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+    background: linear-gradient(135deg, #2e283c, #211f2a, #252734, #09122c);   
     color: #fff;
     padding: 60px 0 30px 0;
     box-shadow: 0 0 40px 0 rgba(0,0,0,0.15);
@@ -692,7 +692,7 @@ nav .fa {
     margin-bottom: 18px;
     font-size: 20px;
     font-weight: 600;
-    color: #ffcc00;
+    color: #ffffff;
 }
 
 .footer-col p, .footer-col ul {
